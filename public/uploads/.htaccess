@@ -1,0 +1,9 @@
+# WaDesk defence-in-depth: user-uploaded media must NEVER be executed as a
+# server-side script, even if a malicious file slipped past app validation.
+# Uses access-denial (not php_flag, which can 500 under PHP-FPM/LiteSpeed).
+<FilesMatch "(?i)\.(php|php[0-9]|phtml|phps|phar|pht|phtm|cgi|pl|py|sh|asp|aspx|jsp|jspx|htaccess)$">
+    Require all denied
+</FilesMatch>
+Options -ExecCGI -Indexes
+RemoveHandler .php .phtml .phar .cgi .pl .py
+RemoveType .php .phtml .phar

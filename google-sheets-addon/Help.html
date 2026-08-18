@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#FBFAF6;color:#0B1F1C;padding:22px;line-height:1.6;font-size:13px}
+    h1{font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:500;margin-bottom:6px}
+    h2{font-family:'Fraunces',Georgia,serif;font-size:16px;font-weight:500;margin:18px 0 8px}
+    p{color:#44524F;margin-bottom:10px}
+    ol, ul{padding-left:20px;margin-bottom:10px}
+    li{margin-bottom:6px;color:#44524F}
+    .card{background:#fff;border:1px solid #EAE6DC;border-radius:10px;padding:14px;margin-bottom:14px}
+    code{background:#F5F2EA;padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .small{font-size:11.5px;color:#6B807C}
+    a{color:#075E54;font-weight:600}
+    .pill{display:inline-block;padding:1px 8px;border-radius:9999px;font-size:10.5px;font-family:'JetBrains Mono',monospace;background:#D5F0EA;color:#075E54;margin-right:4px}
+  </style>
+</head>
+<body>
+  <h1>Wasnap WhatsApp Shop · Help</h1>
+  <p class="small">Turn this sheet into a live WhatsApp storefront in 3 steps.</p>
+
+  <h2>1. Set your API key</h2>
+  <div class="card">
+    <p>Open <a href="#" id="acc" target="_blank">your Wasnap account</a>, find the <b>Sheets API Key</b> section, click <b>Generate</b>. Copy the <code>wsn_live_…</code> token.</p>
+    <p>Back in Sheets: <b>Extensions → Wasnap WhatsApp Shop → Settings · API key</b>. Paste and save.</p>
+  </div>
+
+  <h2>2. Lay out your products</h2>
+  <div class="card">
+    <p>Row 1 must contain these column headers (in any order — matched by name, not position):</p>
+    <p><span class="pill">Product Name</span><span class="pill">Category</span><span class="pill">Description</span><span class="pill">Image URL</span><span class="pill">Price</span><span class="pill">SKU</span><span class="pill">Stock</span><span class="pill">Active</span></p>
+    <p>One product per row. <code>Image URL</code> must be publicly reachable — Google-Drive share links won't work. <code>Active</code> accepts <code>Y</code> or <code>N</code>. Leave <code>Stock</code> blank for unlimited.</p>
+    <p>Don't know what data to enter? Click <b>Create shop → Start from demo</b> — we'll populate the sheet with 3 example rows so you can see the shape.</p>
+  </div>
+
+  <h2>3. Publish</h2>
+  <div class="card">
+    <p><b>Extensions → Wasnap WhatsApp Shop → Create shop</b>. Review the product list, click <b>Next</b>, enter shop name + currency + WhatsApp number, click <b>Publish</b>. Your shop is live in under 2 seconds — copy the link from the success screen.</p>
+    <p>To make changes later, edit the sheet and run <b>Update shop</b> from the same menu.</p>
+  </div>
+
+  <h2>Troubleshooting</h2>
+  <div class="card">
+    <ul>
+      <li><b>Menu isn't showing</b> — refresh the spreadsheet tab (Ctrl+R). Newly installed add-ons need a page reload.</li>
+      <li><b>"No valid key"</b> — your token was revoked or rotated on Wasnap. Open <b>Settings · API key</b> and paste a fresh one.</li>
+      <li><b>Images show as 📦 on the storefront</b> — the URL isn't publicly reachable. Try <code>https://picsum.photos/seed/xxx/400</code> for a quick test image.</li>
+      <li><b>Publish failed: HTTP 401</b> — your Wasnap account key was revoked. Generate a new one and re-paste.</li>
+      <li><b>Sync changes my prices on Wasnap</b> — that's by design: the sheet is the source of truth. Edit on Wasnap if you want sheet→Wasnap to stay one-way, then don't re-sync.</li>
+    </ul>
+  </div>
+
+<script>
+  google.script.run.withSuccessHandler(s => {
+    document.getElementById('acc').href = s.wasnap_base + '/sheets-addon';
+  }).apiKeyStatus();
+</script>
+</body>
+</html>

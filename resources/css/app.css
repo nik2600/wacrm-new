@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Caveat:wght@600;700&display=swap');
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../../addon/**/*.blade.php';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-serif: 'Fraunces', serif;
+    --font-mono: '"JetBrains Mono"', monospace;
+
+    --color-paper-0: #FBFAF6;
+    --color-paper-50: #F5F3EC;
+    --color-paper-100: #EFEBE0;
+    --color-paper-200: #E5DFD0;
+    --color-paper-300: #D4CCB6;       /* prototype-exact; was D6CDB6 — 2-hex drift */
+
+    --color-ink-300: #C3CCC9;          /* added — prototype uses for hairline dots */
+    --color-ink-400: #9AA8A4;          /* prototype-exact; was 92A29E */
+    --color-ink-500: #6B807C;
+    --color-ink-600: #3A5A55;
+    --color-ink-700: #1F4540;
+    --color-ink-800: #13312D;
+    --color-ink-900: #0B1F1C;
+    --color-ink-950: #070D0C;          /* added — deepest black, prototype */
+
+    --color-wa-deep: #075E54;
+    --color-wa-teal: #128C7E;
+    --color-wa-green: #25D366;
+    --color-wa-mint: #DCF8C6;
+    --color-wa-chat: #ECE5DD;
+    --color-wa-bubble: #E7FFDB;
+
+    --color-accent-coral: #E87A5D;
+    --color-accent-amber: #E5A04E;
+    --color-accent-sand: #D9C9A3;
+    --color-accent-plum: #5B3D8A;      /* added — prototype */
+    --color-accent-sky: #3E7AA1;       /* added — prototype */
+
+    /* Instagram automation ("Instaflow") palette — from the ui/ mockups.
+     * Real Tailwind tokens so blades use bg-ig-pink / text-ig-purple
+     * instead of inline hex. */
+    --color-ig-purple: #833AB4;
+    --color-ig-pink: #E1306C;
+    --color-ig-magenta: #C13584;
+    --color-ig-orange: #F77737;
+    --color-ig-amber: #FCAF45;
+    --color-ig-red: #FD1D1D;
+    --color-ig-blue: #405DE6;
+
+    --shadow-card: 0 1px 0 rgba(11,31,28,0.04), 0 1px 2px rgba(11,31,28,0.04);
+    --shadow-soft: 0 8px 24px -12px rgba(7,94,84,0.18);
+}
+
+@import './wadesk.css';
+
+/* ──────────────────────────────────────────────────────────────────
+ * Instagram automation ("Instaflow") theme helpers. The brand gradient
+ * is a multi-stop, so it lives as reusable classes (not inline styles)
+ * exactly like the ui/ mockups define them.
+ * ────────────────────────────────────────────────────────────────── */
+.ig-grad      { background:linear-gradient(135deg,#405DE6 0%,#833AB4 25%,#C13584 50%,#E1306C 70%,#F77737 90%,#FCAF45 100%); }
+.ig-grad-soft { background:linear-gradient(135deg,#833AB4 0%,#E1306C 55%,#F77737 100%); }
+.ig-text      { background:linear-gradient(120deg,#833AB4,#E1306C,#F77737); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.ig-ring      { background:linear-gradient(135deg,#F77737,#E1306C,#C13584,#833AB4); padding:2px; border-radius:9999px; }
+.ig-card-hover { transition:transform .2s, box-shadow .2s, border-color .2s; }
+.ig-card-hover:hover { transform:translateY(-2px); box-shadow:0 16px 36px -22px rgba(193,53,132,0.35); border-color:#E1306C; }
+
+/* New Instaflow shell (ui/ mockups): slim left icon rail + accents. */
+.ig-rail-ic { width:46px; height:46px; border-radius:14px; display:grid; place-items:center; color:var(--color-ink-600); position:relative; transition:.15s; }
+.ig-rail-ic:hover { background:var(--color-paper-100); color:var(--color-ink-900); }
+.ig-rail-ic.active { background:var(--color-ink-900); color:#fff; }
+.ig-rail-ic.active::before { content:""; position:absolute; left:-9px; top:50%; transform:translateY(-50%); width:3px; height:22px; border-radius:0 3px 3px 0; background:linear-gradient(180deg,#833AB4,#E1306C,#F77737); }
+.ig-rail-ic .ig-tip { position:absolute; left:calc(100% + 10px); top:50%; transform:translateY(-50%); white-space:nowrap; background:var(--color-ink-900); color:#fff; font-size:11px; padding:4px 9px; border-radius:8px; opacity:0; pointer-events:none; transition:.15s; z-index:50; }
+.ig-rail-ic:hover .ig-tip { opacity:1; }
+.ig-pulse { animation:igPulse 1.6s ease-in-out infinite; }
+@keyframes igPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.35)} }
+.ig-dots { background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.18) 1px, transparent 0); background-size:14px 14px; }
+.ig-scroll::-webkit-scrollbar { width:7px; }
+.ig-scroll::-webkit-scrollbar-thumb { background:var(--color-paper-300); border-radius:4px; }
+/* frontend.css is its own Vite entry — loaded directly by the
+ * frontend layout via @vite(['resources/css/frontend.css']).
+ * The dashboard / admin / user shell bundles never pull it in. */
+
+/* ──────────────────────────────────────────────────────────────────
+ * Mobile-responsiveness backstop (admin + user shells).
+ * Bare element selectors, so any Tailwind utility (w-*, max-w-*, h-*)
+ * still wins — desktop is untouched. These only stop inner content from
+ * forcing a horizontal scrollbar on small screens.
+ * ────────────────────────────────────────────────────────────────── */
+/* NB: intentionally NOT svg — inline SVGs here are either sized icons
+   (explicit w- and h- utilities) or functional canvases (the flow-builder
+   edge layer is width=4000, plus minimaps and charts). Clamping those to
+   max-width:100% squashes them to nothing (e.g. flow connection lines
+   vanish). Only real media is clamped. */
+img, video, canvas, iframe { max-width: 100%; }
+/* Root-level horizontal-overflow net for the admin + user shells. clip on
+   <html> directly (not only <body>) so a stray wide child can never make the
+   page scroll sideways on mobile. clip (not hidden) keeps overflow-y visible,
+   so vertical sticky headers/sidebars and inner overflow-x-auto scrollers all
+   keep working. Desktop is unaffected (nothing exceeds the viewport there). */
+html { overflow-x: clip; }
+

@@ -1,0 +1,3050 @@
+/* WaDesk shared styles — used across every page.
+   Tailwind theme tokens are configured in app.js (window.tailwind.config). */
+
+/* fonts moved to app.css to satisfy CSS @import ordering rules */
+
+/* ── DERIVED BRAND SHADES ────────────────────────────────
+   Everything below styles brand surfaces off these, never off a literal hex,
+   so that recolouring the dashboard at /admin/settings/appearance reaches the
+   whole stylesheet. theme_css() overrides --color-* at :root; these follow.
+
+   The dark theme redefines them further down with lighter values — declaring
+   them here as well means any rule can reference them regardless of which
+   theme is active, instead of resolving to nothing outside dark mode. */
+:root {
+    --wa-brand-text:   var(--color-wa-deep);
+    --wa-brand-bright: oklch(from var(--color-wa-deep) 0.62 c h);
+    --wa-brand-bg:     var(--color-wa-deep);
+    --wa-brand-border: var(--color-wa-deep);
+    --wa-teal-text:    var(--color-wa-teal);
+    --wa-accent-text:  var(--color-wa-green);
+}
+
+/* hairline border helper used in older markup */
+.hairline    { box-shadow: inset 0 0 0 1px var(--color-paper-200); }
+.hairline-b  { box-shadow: inset 0 -1px 0 var(--color-paper-200); }
+
+/* shared toggle switch — used across admin settings, devices, etc. */
+.toggle { position:relative; display:inline-block; width:36px; height:20px; flex:none; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle .track { position:absolute; inset:0; background:var(--color-paper-200); border-radius:999px; transition:.18s; cursor:pointer; }
+.toggle .thumb { position:absolute; top:2px; left:2px; width:16px; height:16px; background:var(--color-paper-0); border-radius:50%; transition:.18s; box-shadow: 0 1px 3px rgba(11,31,28,.2); pointer-events:none; }
+.toggle input:checked ~ .track { background:var(--color-wa-deep); }
+.toggle input:checked ~ .thumb { left:18px; }
+
+/* Template Library "Edit template" pill — the dashed outline button fills
+   solid green on hover, so its label MUST flip to white. The Tailwind
+   hover:text-* utility was losing to the base text-wa-deep, leaving green
+   text on a green fill (invisible). Force it here — .use-sample is only ever
+   this button, which always gets a green hover fill. */
+.use-sample:hover,
+.use-sample:hover * { color:#fff !important; }
+
+/* shared scrollbar */
+::-webkit-scrollbar { width:8px; height:8px; }
+::-webkit-scrollbar-thumb { background: rgba(11,31,28,0.18); border-radius:999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(11,31,28,0.32); }
+
+/* In-app paywall bottom sheet — slide up from the bottom edge.
+   Used by resources/views/components/plan-paywall.blade.php. */
+@keyframes plan-paywall-rise { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes plan-paywall-fade { from { opacity: 0; } to { opacity: 1; } }
+.plan-paywall-overlay { animation: plan-paywall-fade .2s ease-out both; }
+.plan-paywall-sheet   { animation: plan-paywall-rise .28s cubic-bezier(.22,1,.36,1) both; }
+
+/* ─────────────────────────────────────────────────────────────
+   intl-tel-input — paper palette overrides. Library ships with
+   its own CSS that styles a drop-shadow box; we tighten the
+   borders and colours so the picker fits inside our rounded-xl
+   inputs without looking like a foreign component.
+   ───────────────────────────────────────────────────────────── */
+.wa-iti-wrap .iti { width: 100%; }
+/* Generous left-pad so the dial-code badge and the number have
+   real breathing room — default 88px leaves them touching. */
+.wa-iti-wrap .iti__tel-input,
+.wa-iti-wrap input[type="tel"] {
+  padding-left: 108px !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+.wa-iti-wrap .iti--separate-dial-code .iti__selected-flag {
+  background-color: var(--color-paper-50);
+  border-right: 1px solid var(--color-paper-200);
+  border-radius: 12px 0 0 12px;
+  padding: 0 10px 0 12px;
+  gap: 6px;
+}
+.wa-iti-wrap .iti--separate-dial-code .iti__selected-dial-code {
+  margin-left: 4px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+/* When dropdownContainer:document.body portals the country list
+   out of the modal, it's positioned absolutely against <body> so
+   the parent .wa-iti-wrap selector no longer matches. Style by
+   the iti--container class the package adds to the portaled
+   element instead, and force a z-index above the modal (z-50). */
+.iti--container,
+.wa-iti-wrap .iti__country-list,
+.iti__country-list {
+  background: var(--color-paper-0);
+  border: 1px solid var(--color-paper-200);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px -12px color-mix(in srgb, var(--color-wa-deep) 18%, transparent);
+  font-size: 12.5px;
+  z-index: 80;
+}
+.iti__country.iti__highlight,
+.iti__country:hover { background: var(--color-wa-mint); }
+.wa-iti-wrap .iti__divider { border-bottom: 1px dashed var(--color-paper-200); }
+.wa-iti-wrap .iti__search-input {
+  border: 1px solid var(--color-paper-200); border-radius: 999px; padding: 6px 12px;
+  font-size: 12.5px; outline: none;
+}
+.wa-iti-wrap .iti__search-input:focus { border-color: var(--color-wa-deep); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-wa-deep) 10%, transparent); }
+
+html[data-theme="dark"] .wa-iti-wrap .iti--separate-dial-code .iti__selected-flag {
+  background-color: #173631;
+  border-right-color: #2D5A53;
+}
+html[data-theme="dark"] .iti--container,
+html[data-theme="dark"] .wa-iti-wrap .iti__country-list,
+html[data-theme="dark"] .iti__country-list {
+  background: #13312D;
+  border-color: #2D5A53;
+  color: #F0EBE0;
+  box-shadow: 0 8px 24px -12px rgba(0,0,0,0.55);
+}
+html[data-theme="dark"] .iti__country.iti__highlight,
+html[data-theme="dark"] .iti__country:hover { background: #1F4540; }
+html[data-theme="dark"] .wa-iti-wrap .iti__divider { border-bottom-color: #2D5A53; }
+html[data-theme="dark"] .wa-iti-wrap .iti__search-input {
+  background: #1F4540;
+  border-color: #2D5A53;
+  color: #F0EBE0;
+}
+
+/* Tom Select searchable selects, used by timezone fields. */
+html .ts-wrapper { width: 100%; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+html .ts-control,
+html .ts-wrapper.single .ts-control {
+  min-height: 42px !important;
+  padding: 8px 10px !important;
+  border: 1px solid var(--color-paper-200) !important;
+  border-radius: 8px !important;
+  background: var(--color-paper-0) !important;
+  color: var(--color-ink-900) !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  box-shadow: none !important;
+}
+html .ts-control input,
+html .ts-dropdown input {
+  color: var(--color-ink-900) !important;
+  font-size: 13px !important;
+}
+html .ts-control input::placeholder,
+html .ts-dropdown input::placeholder { color: var(--color-ink-500) !important; opacity: 1; }
+html .ts-wrapper.focus .ts-control {
+  border-color: var(--color-wa-deep) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-wa-deep) 10%, transparent) !important;
+}
+html .ts-wrapper.single .ts-control:after { border-color: var(--color-ink-500) transparent transparent transparent; }
+html .ts-wrapper.single.dropdown-active .ts-control:after { border-color: transparent transparent var(--color-ink-500) transparent; }
+html .ts-dropdown {
+  z-index: 80 !important;
+  margin-top: 6px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--color-paper-200) !important;
+  border-radius: 10px !important;
+  background: var(--color-paper-0) !important;
+  color: var(--color-ink-900) !important;
+  font-size: 12.5px !important;
+  box-shadow: 0 8px 24px -12px color-mix(in srgb, var(--color-wa-deep) 18%, transparent) !important;
+}
+html .ts-dropdown .option,
+html .ts-dropdown .create,
+html .ts-dropdown .no-results {
+  padding: 7px 10px !important;
+  color: var(--color-ink-700) !important;
+}
+html .ts-dropdown .active,
+html .ts-dropdown .option:hover {
+  background: var(--color-wa-mint) !important;
+  color: var(--color-wa-deep) !important;
+}
+html .ts-dropdown .selected { font-weight: 600; }
+
+html[data-theme="bright"] .ts-control,
+html[data-theme="bright"] .ts-wrapper.single .ts-control,
+html[data-theme="bright"] .ts-dropdown {
+  background: #FFFFFF !important;
+  border-color: #E6E6E6 !important;
+}
+html[data-theme="dark"] .ts-control,
+html[data-theme="dark"] .ts-wrapper.single .ts-control {
+  background: #1F4540 !important;
+  border-color: #2D5A53 !important;
+  color: #F0EBE0 !important;
+}
+html[data-theme="dark"] .ts-control input,
+html[data-theme="dark"] .ts-dropdown input { color: #F0EBE0 !important; }
+html[data-theme="dark"] .ts-control input::placeholder,
+html[data-theme="dark"] .ts-dropdown input::placeholder { color: #92A29E !important; }
+html[data-theme="dark"] .ts-wrapper.focus .ts-control {
+  border-color: var(--color-wa-green) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-wa-green) 12%, transparent) !important;
+}
+html[data-theme="dark"] .ts-wrapper.single .ts-control:after { border-color: #A8B7B2 transparent transparent transparent; }
+html[data-theme="dark"] .ts-wrapper.single.dropdown-active .ts-control:after { border-color: transparent transparent #A8B7B2 transparent; }
+html[data-theme="dark"] .ts-dropdown {
+  background: #13312D !important;
+  border-color: #2D5A53 !important;
+  color: #F0EBE0 !important;
+  box-shadow: 0 8px 24px -12px rgba(0,0,0,0.55) !important;
+}
+html[data-theme="dark"] .ts-dropdown .option,
+html[data-theme="dark"] .ts-dropdown .create,
+html[data-theme="dark"] .ts-dropdown .no-results { color: #E5DFD0 !important; }
+html[data-theme="dark"] .ts-dropdown .active,
+html[data-theme="dark"] .ts-dropdown .option:hover {
+  background: #1F4540 !important;
+  color: var(--wa-brand-bright) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   emoji-picker-element web component — force light theme and
+   restyle to match the WaDesk paper palette. The package auto-
+   switches based on prefers-color-scheme by default; we always
+   want the WA-paper look.
+   ───────────────────────────────────────────────────────────── */
+.chat-emoji-picker {
+  --background:                  var(--color-paper-0);
+  --border-color:                var(--color-paper-200);
+  --border-size:                 1px;
+  --indicator-color:             var(--color-wa-deep);
+  --button-active-background:    var(--color-wa-mint);
+  --button-hover-background:     var(--color-wa-mint);
+  --input-border-color:          var(--color-paper-200);
+  --input-font-color:             var(--color-ink-900);
+  --input-placeholder-color:     var(--color-ink-500);
+  --input-padding:               .35rem .6rem;
+  --category-emoji-padding:      .25rem;
+  --emoji-padding:               .35rem;
+  --num-columns:                 8;
+  --outline-color:               var(--color-wa-deep);
+  --outline-size:                2px;
+  width: 320px;
+  height: 380px;
+  border: 0;
+}
+.chat-emoji-picker::part(picker) { background: var(--color-paper-0); }
+
+/* ─────────────────────────────────────────────────────────────
+   Shimmer skeletons (queue list + thread loading state)
+   ───────────────────────────────────────────────────────────── */
+@keyframes wa-shimmer {
+  0%   { background-position: -240px 0; }
+  100% { background-position:  240px 0; }
+}
+.skeleton {
+  background-color: var(--color-paper-100);
+  background-image: linear-gradient(90deg,
+    rgba(255,255,255,0)  0%,
+    rgba(251,250,246,.85) 50%,
+    rgba(255,255,255,0)  100%);
+  background-size: 240px 100%;
+  background-repeat: no-repeat;
+  animation: wa-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+html[data-theme="dark"] .skeleton {
+  background-color: #1F4540;
+  background-image: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0) 100%);
+}
+html[data-theme="doodle"] .skeleton {
+  background-color: #D7E7D6;
+  background-image: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,253,245,0.85) 50%,
+    rgba(255,255,255,0) 100%);
+}
+
+/* avoid layout shift while header injects */
+[data-site-header] { min-height: 64px; background: var(--color-paper-0); border-bottom: 1px solid var(--color-paper-200); }
+[data-site-header]:not(:empty) { min-height: 0; border-bottom: 0; background: transparent; }
+
+/* ─────────────────────────────────────────────────────────────
+   THEMES — apply data-theme on <html>
+   default = paper (warm cream).  bright = clean white.  dark = forest.
+   ───────────────────────────────────────────────────────────── */
+
+html { transition: background-color .25s ease, color .25s ease; }
+
+/* ════════════════════════════════════════════════════════════
+   BRIGHT
+   ════════════════════════════════════════════════════════════ */
+html[data-theme="bright"] body                       { background-color: #FFFFFF !important; }
+html[data-theme="bright"] .bg-paper-50,
+html[data-theme="bright"] .bg-paper-50\/40,
+html[data-theme="bright"] .bg-paper-50\/60           { background-color: #F8F8F8 !important; }
+html[data-theme="bright"] .bg-paper-0,
+html[data-theme="bright"] .bg-paper-0\/95,
+html[data-theme="bright"] .bg-paper-0\/40,
+html[data-theme="bright"] .bg-white                  { background-color: #FFFFFF !important; }
+html[data-theme="bright"] .bg-paper-100              { background-color: #F0F0F0 !important; }
+html[data-theme="bright"] .bg-paper-200              { background-color: #E6E6E6 !important; }
+html[data-theme="bright"] .border-paper-200,
+html[data-theme="bright"] .border-paper-100          { border-color: #E6E6E6 !important; }
+html[data-theme="bright"] .divide-paper-200 > * + *  { border-color: #E6E6E6 !important; }
+html[data-theme="bright"] [data-site-header],
+html[data-theme="bright"] header                     { background:#FFFFFF !important; border-color:#E6E6E6 !important; }
+html[data-theme="bright"] .hairline-b                { box-shadow: inset 0 -1px 0 #E6E6E6; }
+html[data-theme="bright"] .hairline                  { box-shadow: inset 0 0 0 1px #E6E6E6; }
+
+/* ════════════════════════════════════════════════════════════
+   DARK
+   palette:
+     #0B1F1C  page bg          #13312D  card bg
+     #1F4540  tint / hover     #2D5A53  border / divider
+     #FBFAF6  primary text     #D6CDB6  secondary
+     #92A29E  muted text       #6B807C  faintest
+   ════════════════════════════════════════════════════════════ */
+
+/* ── BODY + DEFAULT TEXT ─────────────────────────────────── */
+html[data-theme="dark"]                               { color-scheme: dark; }
+html[data-theme="dark"] body                          { background-color:#0B1F1C !important; color:#F0EBE0 !important; }
+
+/* ── BACKGROUNDS ─────────────────────────────────────────── */
+html[data-theme="dark"] .bg-paper-50,
+html[data-theme="dark"] .bg-paper-50\/40,
+html[data-theme="dark"] .bg-paper-50\/50,
+html[data-theme="dark"] .bg-paper-50\/60              { background-color:#0F2723 !important; }
+/* Pagination/table-footer strip — lift it one shade brighter so the
+ * "Showing 0 most recent · Prev / Next" row reads against the canvas.
+ * Without this it sits at near-canvas contrast and the disabled buttons
+ * (opacity-50 on muted text) are functionally invisible. */
+html[data-theme="dark"] .border-t.bg-paper-50\/40,
+html[data-theme="dark"] .border-t.bg-paper-50\/50,
+html[data-theme="dark"] .border-t.bg-paper-50\/60     { background-color:#15302C !important; }
+/* Pagination's disabled "Prev / Next" buttons use opacity-50 on top of
+ * already-muted ink + faint border. Halve the opacity drop in dark so
+ * the buttons remain readable as "this is here but disabled". */
+html[data-theme="dark"] .opacity-50                   { opacity: 0.75; }
+html[data-theme="dark"] .bg-paper-0,
+html[data-theme="dark"] .bg-paper-0\/95,
+html[data-theme="dark"] .bg-paper-0\/40,
+html[data-theme="dark"] .bg-paper-0\/15,
+html[data-theme="dark"] .bg-white                     { background-color:#13312D !important; }
+html[data-theme="dark"] .bg-paper-100                 { background-color:#1F4540 !important; }
+html[data-theme="dark"] .bg-paper-200,
+html[data-theme="dark"] .bg-paper-300                 { background-color:#2D5A53 !important; }
+
+/* hover bg-paper-50 / 100 over rows */
+html[data-theme="dark"] .hover\:bg-paper-50:hover           { background-color:#1F4540 !important; }
+html[data-theme="dark"] .hover\:bg-paper-100:hover          { background-color:#2D5A53 !important; }
+/* Partial-alpha variants (paper-50/40 etc) — without these overrides
+ * Tailwind keeps the light-mode value and the hovered surface lifts to
+ * a near-white tone in dark mode, destroying contrast for the text
+ * sitting on it (e.g. /admin/payment-gateways gateway-card head). */
+html[data-theme="dark"] .hover\:bg-paper-50\/40:hover,
+html[data-theme="dark"] .hover\:bg-paper-50\/50:hover,
+html[data-theme="dark"] .hover\:bg-paper-50\/60:hover       { background-color:#1A3A35 !important; }
+
+/* ── BORDERS / DIVIDERS ─────────────────────────────────── */
+html[data-theme="dark"] .border-paper-100,
+html[data-theme="dark"] .border-paper-200,
+html[data-theme="dark"] .border-paper-300,
+html[data-theme="dark"] .divide-paper-200 > * + *,
+html[data-theme="dark"] .divide-paper-100 > * + *     { border-color:#2D5A53 !important; }
+
+/* ── DARK THEME: PINNED PALETTE ──────────────────────────
+   Dark mode is a designed look, not a tint of the brand colour, so the admin
+   palette at /admin/settings/appearance deliberately does NOT reach it. Only
+   the light (paper) and bright themes follow that setting.
+
+   Re-declaring the --color-* tokens here is what enforces it: custom properties
+   inherit, so every Tailwind utility inside dark scope (.bg-wa-deep resolves to
+   var(--color-wa-deep)) and every rule below picks up THESE values rather than
+   the :root overrides theme_css() writes. One block, whole theme immunised.
+
+   The --wa-* shades are the hand-picked dark variants — lighter and more
+   saturated than the light-theme brand so they stay legible on dark surfaces. */
+html[data-theme="dark"] {
+    --color-wa-deep:   #075E54;
+    --color-wa-teal:   #128C7E;
+    --color-wa-green:  #25D366;
+    --color-wa-mint:   #DCF8C6;
+    --color-wa-bubble: #E7FFDB;
+
+    --wa-brand-text:   #34D87A;
+    --wa-brand-bright: #7BFFB1;
+    --wa-brand-bg:     #0F8556;
+    --wa-brand-border: #34D87A;
+    --wa-teal-text:    #3BD4C7;
+    --wa-accent-text:  #5BFFA8;
+}
+
+/* keep the accent borders visible */
+html[data-theme="dark"] .border-wa-deep               { border-color:#25D366 !important; }
+
+/* ── TEXT ───────────────────────────────────────────────── */
+html[data-theme="dark"] .text-ink-900                 { color:#FBFAF6 !important; }
+html[data-theme="dark"] .text-ink-800                 { color:#F0EBE0 !important; }
+html[data-theme="dark"] .text-ink-700                 { color:#E5DFD0 !important; }
+html[data-theme="dark"] .text-ink-600                 { color:#C9D2CE !important; }
+html[data-theme="dark"] .text-ink-500                 { color:#A8B7B2 !important; }
+html[data-theme="dark"] .text-ink-400                 { color:#92A29E !important; }
+html[data-theme="dark"] .text-wa-deep                 { color:var(--wa-brand-text) !important; }
+html[data-theme="dark"] .text-wa-teal                 { color:var(--wa-teal-text) !important; }
+
+/* placeholders */
+html[data-theme="dark"] ::placeholder                 { color:#92A29E !important; opacity:1; }
+
+/* ── HEADER ─────────────────────────────────────────────── */
+html[data-theme="dark"] header,
+html[data-theme="dark"] [data-site-header]            { background:#13312D !important; border-color:#2D5A53 !important; }
+html[data-theme="dark"] .hairline-b                   { box-shadow: inset 0 -1px 0 #2D5A53; }
+html[data-theme="dark"] .hairline                     { box-shadow: inset 0 0 0 1px #2D5A53; }
+
+/* ── INPUTS / SELECTS / TEXTAREAS ───────────────────────── */
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select                        { background-color:#1F4540 !important; color:#F0EBE0 !important; border-color:#2D5A53 !important; }
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus                  { border-color:var(--color-wa-green) !important; }
+
+/* ── BUTTONS ────────────────────────────────────────────── */
+html[data-theme="dark"] button.bg-paper-0,
+html[data-theme="dark"] a.bg-paper-0                  { background-color:#1F4540 !important; color:#F0EBE0 !important; }
+
+/* keep brand-deep buttons visually consistent */
+html[data-theme="dark"] .bg-wa-deep                   { background-color:var(--wa-brand-bg) !important; }
+html[data-theme="dark"] .hover\:bg-wa-teal:hover      { background-color:#15A074 !important; }
+html[data-theme="dark"] .hover\:bg-wa-deep:hover      { background-color:var(--wa-brand-bg) !important; }
+
+/* ── ACCENT SURFACES ────────────────────────────────────── */
+/* Selected/active button surfaces.
+ *
+ * Previously these set color:var(--wa-brand-text) on a 0.18-alpha green bg — light green
+ * text on light green became completely unreadable (the "Female", "Existing
+ * user", "No plan / Free" pills in dark mode all disappeared on click).
+ *
+ * Fix: keep the green bg as the selected affordance, but force readable
+ * paper-tone text inside. The .text-wa-deep override below ensures any
+ * nested text-wa-deep also flips to the readable tone instead of staying
+ * light green.
+ */
+html[data-theme="dark"] .bg-wa-mint                   { background-color: color-mix(in srgb, var(--color-wa-green) 28%, transparent) !important; color:#FBFAF6 !important; }
+html[data-theme="dark"] .bg-wa-bubble,
+html[data-theme="dark"] .bg-wa-bubble\/40,
+html[data-theme="dark"] .bg-wa-bubble\/50,
+html[data-theme="dark"] .bg-wa-bubble\/60             { background-color: color-mix(in srgb, var(--color-wa-green) 18%, transparent) !important; color:#FBFAF6 !important; }
+html[data-theme="dark"] .bg-wa-mint\/30,
+html[data-theme="dark"] .bg-wa-mint\/40               { background-color: color-mix(in srgb, var(--color-wa-green) 20%, transparent) !important; color:#FBFAF6 !important; }
+
+/* Inside a selected pill / card, ANY text node should flip to readable
+ * paper tone — without this, child .text-wa-deep / .text-ink-* shows
+ * the original light-green / muted color and stays invisible on the
+ * selected bg. */
+html[data-theme="dark"] .bg-wa-mint .text-wa-deep,
+html[data-theme="dark"] .bg-wa-bubble .text-wa-deep,
+html[data-theme="dark"] .bg-wa-mint\/30 .text-wa-deep,
+html[data-theme="dark"] .bg-wa-mint\/40 .text-wa-deep { color:#FBFAF6 !important; }
+
+/* Tailwind's `has-[:checked]:bg-wa-bubble` variant — used on the
+ * "Existing user" / "No plan / Free" radio cards on /admin/workspaces/create
+ * and many other admin pages — compiles to a DIFFERENT CSS class than
+ * plain .bg-wa-bubble, so the override above doesn't match. Mirror
+ * the same readable-text rule onto the variant selector. */
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-bubble:has(:checked),
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-mint:has(:checked) {
+    background-color: color-mix(in srgb, var(--color-wa-green) 28%, transparent) !important;
+    color:#FBFAF6 !important;
+}
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-bubble:has(:checked) *,
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-mint:has(:checked) *,
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-bubble:has(:checked) .text-wa-deep,
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-mint:has(:checked) .text-wa-deep,
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-bubble:has(:checked) .text-ink-500,
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-bubble:has(:checked) .text-ink-700,
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-mint:has(:checked) .text-ink-500,
+html[data-theme="dark"] .has-\[\:checked\]\:bg-wa-mint:has(:checked) .text-ink-700 {
+    color:#FBFAF6 !important;
+}
+/* Same fix for any peer-checked variant (radios that toggle a sibling) */
+html[data-theme="dark"] .peer-checked\:bg-wa-bubble,
+html[data-theme="dark"] .peer-checked\:bg-wa-mint {
+    background-color: color-mix(in srgb, var(--color-wa-green) 28%, transparent) !important;
+    color:#FBFAF6 !important;
+}
+html[data-theme="dark"] .border-wa-green\/30,
+html[data-theme="dark"] .border-wa-green\/40          { border-color: color-mix(in srgb, var(--color-wa-green) 40%, transparent) !important; }
+html[data-theme="dark"] .text-wa-deep.font-semibold,
+html[data-theme="dark"] .text-wa-deep.font-bold       { color:var(--wa-brand-text) !important; }
+
+/* tinted brand surfaces (blue / amber / coral / purple) */
+html[data-theme="dark"] .bg-\[\#D9E5F2\]              { background-color: rgba(91,160,242,0.15) !important; }
+html[data-theme="dark"] .bg-\[\#E0EBF7\]              { background-color: rgba(91,160,242,0.18) !important; }
+html[data-theme="dark"] .bg-\[\#FFF4E0\]              { background-color: rgba(229,160,78,0.18) !important; }
+html[data-theme="dark"] .bg-\[\#FFF6E0\]              { background-color: rgba(229,160,78,0.18) !important; }
+html[data-theme="dark"] .bg-\[\#F3E9FF\]              { background-color: rgba(123,87,199,0.20) !important; }
+html[data-theme="dark"] .bg-\[\#FBE9E7\]              { background-color: rgba(232,122,93,0.20) !important; }
+html[data-theme="dark"] .bg-\[\#E8F5E9\]              { background-color: color-mix(in srgb, var(--color-wa-green) 18%, transparent) !important; }
+html[data-theme="dark"] .bg-\[\#F1F9EC\]              { background-color: color-mix(in srgb, var(--color-wa-green) 15%, transparent) !important; }
+html[data-theme="dark"] .bg-\[\#F3ECFA\]              { background-color: rgba(127,84,179,0.22) !important; }
+html[data-theme="dark"] .bg-\[\#E0F4F1\]              { background-color: rgba(46,201,192,0.18) !important; }
+html[data-theme="dark"] .bg-\[\#F0F8F6\]              { background-color: color-mix(in srgb, var(--color-wa-green) 10%, transparent) !important; }
+html[data-theme="dark"] .bg-\[var\(--color-wa-bubble\)\]              { background-color: color-mix(in srgb, var(--color-wa-green) 18%, transparent) !important; }
+html[data-theme="dark"] .bg-\[\#DFF1ED\]              { background-color: color-mix(in srgb, var(--color-wa-deep) 30%, transparent) !important; }
+html[data-theme="dark"] .bg-\[\#F0EBFB\]              { background-color: rgba(123,87,199,0.20) !important; }
+
+/* coral / amber accents stay legible */
+html[data-theme="dark"] .text-accent-coral            { color:#FF8E70 !important; }
+html[data-theme="dark"] .text-accent-amber            { color:#FFC07A !important; }
+html[data-theme="dark"] .text-\[\#7B5A14\],
+html[data-theme="dark"] .text-\[\#8B5A14\],
+html[data-theme="dark"] .text-\[\#8B5A1F\]            { color:#FFC07A !important; }
+html[data-theme="dark"] .text-\[\#A1431F\],
+html[data-theme="dark"] .text-\[\#A1731F\]            { color:#FF8E70 !important; }
+html[data-theme="dark"] .text-\[\#13478A\]            { color:#7BB8FF !important; }
+html[data-theme="dark"] .text-\[\#5B3D8A\]            { color:#B49AED !important; }
+html[data-theme="dark"] .text-\[\#5E8E3E\]            { color:#7BD66F !important; }
+
+/* ── KBD / CODE / MISC ──────────────────────────────────── */
+html[data-theme="dark"] kbd                           { background:#1F4540 !important; color:#D6CDB6 !important; border-color:#2D5A53 !important; }
+html[data-theme="dark"] code                          { background:#1F4540 !important; color:#F0EBE0 !important; }
+
+/* shadows pop more on dark */
+html[data-theme="dark"] .shadow-card                  { box-shadow: 0 1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.18) !important; }
+html[data-theme="dark"] .shadow-soft                  { box-shadow: 0 12px 28px -10px rgba(0,0,0,0.50) !important; }
+
+/* scrollbar */
+html[data-theme="dark"] ::-webkit-scrollbar-thumb     { background: rgba(255,255,255,0.20) !important; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,0.32) !important; }
+
+/* selected row / row hover for tables */
+html[data-theme="dark"] tr.hover\:bg-paper-50\/60:hover,
+html[data-theme="dark"] tr:hover                      { background-color:#173631 !important; }
+
+/* avatar gradients keep their punch — no override needed */
+
+/* search modal blurred backdrop */
+html[data-theme="dark"] #wa-search-modal              { background: rgba(0,0,0,0.55) !important; }
+
+/* card-style strong borders for danger */
+html[data-theme="dark"] .border-accent-coral\/40,
+html[data-theme="dark"] .border-accent-coral\/30      { border-color: rgba(232,122,93,0.55) !important; }
+
+/* ─────────────────────────────────────────────────────────
+   THEME PICKER POPOVER
+   ───────────────────────────────────────────────────────── */
+.theme-menu        { position:absolute; top:calc(100% + 6px); right:0; min-width:200px; background:var(--color-paper-0); border:1px solid var(--color-paper-200); border-radius:10px; box-shadow:0 8px 24px -10px rgba(11,31,28,0.18); padding:4px; z-index:60; }
+.theme-menu button { width:100%; text-align:left; padding:7px 10px; border-radius:8px; font-size:12px; display:flex; align-items:center; gap:8px; color:#3A5A55; }
+.theme-menu button:hover  { background:var(--color-paper-50); }
+.theme-menu button.active { background:var(--color-wa-deep); color:var(--color-paper-0); }
+.theme-menu .swatch { width:14px; height:14px; border-radius:4px; border:1px solid var(--color-paper-200); flex-shrink:0; }
+
+html[data-theme="dark"] .theme-menu        { background:#13312D !important; border-color:#2D5A53 !important; }
+html[data-theme="dark"] .theme-menu button { color:#E5DFD0 !important; }
+html[data-theme="dark"] .theme-menu button:hover { background:#1F4540 !important; }
+html[data-theme="dark"] .theme-menu button.active { background:var(--wa-brand-bg) !important; }
+html[data-theme="dark"] .theme-menu .swatch { border-color:#2D5A53 !important; }
+html[data-theme="bright"] .theme-menu      { background:#FFFFFF !important; border-color:#E6E6E6 !important; }
+
+/* ─────────────────────────────────────────────────────────
+   PROFILE DROPDOWN + SEARCH MODAL THEME-AWARE
+   ───────────────────────────────────────────────────────── */
+html[data-theme="dark"] #wa-profile-menu              { background:#13312D !important; border-color:#2D5A53 !important; }
+html[data-theme="dark"] #wa-profile-menu a:hover      { background:#1F4540 !important; }
+
+/* universal smooth transitions */
+body, header,
+[class*="bg-paper"], [class*="bg-white"], [class*="text-ink"],
+[class*="border-paper"], input, textarea, select        { transition: background-color .18s ease, color .18s ease, border-color .18s ease; }
+
+/* ─────────────────────────────────────────────────────────
+   PER-PAGE CUSTOM CLASSES — dark overrides
+   These classes are defined in individual page <style> blocks
+   and hard-code light-theme colors. We override them here so
+   the dark switcher actually changes everything.
+   ───────────────────────────────────────────────────────── */
+
+/* tab classes used by account / settings / team-inbox / shopify-dashboard / woocommerce-dashboard */
+html[data-theme="dark"] .acc-tab,
+html[data-theme="dark"] .set-tab,
+html[data-theme="dark"] .ti-tab,
+html[data-theme="dark"] .ig-tab,
+html[data-theme="dark"] .side-tab,
+html[data-theme="dark"] .filter-pill,
+html[data-theme="dark"] .cat-tab,
+html[data-theme="dark"] .tab-line,
+html[data-theme="dark"] .pal-card,
+html[data-theme="dark"] .team-nav-btn,
+html[data-theme="dark"] .op-item .op-label                { color:#E5DFD0 !important; }
+html[data-theme="dark"] .acc-tab:hover,
+html[data-theme="dark"] .set-tab:hover,
+html[data-theme="dark"] .ti-tab:hover,
+html[data-theme="dark"] .ig-tab:hover,
+html[data-theme="dark"] .side-tab:hover,
+html[data-theme="dark"] .pal-card:hover,
+html[data-theme="dark"] .team-nav-btn:hover,
+html[data-theme="dark"] .op-item:hover                    { background:#1F4540 !important; }
+html[data-theme="dark"] .acc-tab.active,
+html[data-theme="dark"] .set-tab.active,
+html[data-theme="dark"] .ti-tab.active,
+html[data-theme="dark"] .ig-tab.active,
+html[data-theme="dark"] .side-tab.active,
+html[data-theme="dark"] .filter-pill.active,
+html[data-theme="dark"] .team-nav-btn.active,
+html[data-theme="dark"] .tab-line.active                  { background:var(--wa-brand-bg) !important; color:#FBFAF6 !important; }
+
+/* danger states (Delete account etc.) */
+html[data-theme="dark"] .acc-tab.danger                   { color:#FF8E70 !important; }
+html[data-theme="dark"] .acc-tab.danger:hover             { background: rgba(232,122,93,0.18) !important; }
+html[data-theme="dark"] .acc-tab.danger.active            { background:#C56B4F !important; color:#FBFAF6 !important; }
+
+/* badges inside tabs */
+html[data-theme="dark"] .ti-tab .badge,
+html[data-theme="dark"] .team-nav-btn .ct                 { background:#2D5A53 !important; color:#E5DFD0 !important; }
+html[data-theme="dark"] .ti-tab.active .badge,
+html[data-theme="dark"] .team-nav-btn.active .ct          { background:rgba(255,255,255,0.18) !important; color:#fff !important; }
+
+/* WhatsApp-style chat bubbles (chat.html, team-inbox.html, flow-builder.html) */
+html[data-theme="dark"] .bubble,
+html[data-theme="dark"] .bubble-in                        { background:#1F4540 !important; border-color:#2D5A53 !important; color:#F0EBE0 !important; }
+html[data-theme="dark"] .bubble.wa,
+html[data-theme="dark"] .bubble-out                       { background: color-mix(in srgb, var(--color-wa-green) 20%, transparent) !important; border-color: color-mix(in srgb, var(--color-wa-green) 45%, transparent) !important; color:#F0EBE0 !important; }
+html[data-theme="dark"] .bubble-note                      { background: rgba(229,160,78,0.20) !important; border-color: rgba(229,160,78,0.45) !important; color:#FFE4B5 !important; }
+html[data-theme="dark"] .bubble-note .text-\[\#7B5A14\]   { color:#FFD89B !important; }
+
+/* chat-paper background (the dotted WhatsApp surface) — dim it for dark mode */
+html[data-theme="dark"] .chat-paper                       { background-color:#0F2723 !important; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px) !important; }
+
+/* dashboard live-inbox surface (uses bg-wa-chat utility instead of .chat-paper) */
+html[data-theme="dark"] .bg-wa-chat                       { background-color:#0F2723 !important; }
+html[data-theme="dark"] .chat-grid                        { color:#F0EBE0 !important; }
+/* explicit text color inside bubbles so it can't fall back to body  */
+html[data-theme="dark"] .chat-grid .bg-paper-0,
+html[data-theme="dark"] .chat-grid .bg-wa-bubble          { color:#F0EBE0 !important; }
+html[data-theme="dark"] .chat-grid .bg-wa-bubble          { background-color: color-mix(in srgb, var(--color-wa-green) 20%, transparent) !important; border:1px solid color-mix(in srgb, var(--color-wa-green) 40%, transparent); }
+html[data-theme="dark"] .chat-grid .bg-paper-0            { background-color:#1F4540 !important; border:1px solid #2D5A53; }
+
+/* generic dropdown menus (.menu used by team-inbox Assign / theme picker / search) */
+html[data-theme="dark"] .menu                             { background:#13312D !important; border-color:#2D5A53 !important; box-shadow: 0 8px 24px -10px rgba(0,0,0,0.55) !important; }
+html[data-theme="dark"] .menu button                      { color:#E5DFD0 !important; }
+html[data-theme="dark"] .menu button:hover                { background:#1F4540 !important; }
+html[data-theme="dark"] .menu .text-ink-500               { color:#A8B7B2 !important; }
+html[data-theme="dark"] .menu .border-paper-200           { border-color:#2D5A53 !important; }
+
+/* search results modal entries */
+html[data-theme="dark"] #wa-search-modal > div            { background:#13312D !important; border-color:#2D5A53 !important; }
+html[data-theme="dark"] #wa-search-modal a               { color:#E5DFD0 !important; }
+html[data-theme="dark"] #wa-search-modal a:hover,
+html[data-theme="dark"] #wa-search-modal a.bg-paper-50   { background:#1F4540 !important; }
+html[data-theme="dark"] #wa-search-input                  { color:#F0EBE0 !important; }
+
+/* edge popup (canvas delete / etc.) */
+html[data-theme="dark"] .edge-popup                       { background:#13312D !important; border-color:#2D5A53 !important; color:#E5DFD0 !important; }
+html[data-theme="dark"] .edge-popup::after                { background:#13312D !important; border-color:#2D5A53 !important; }
+
+/* edge-popup arrow tail */
+html[data-theme="dark"] .menu::after                      { background:#13312D !important; border-color:#2D5A53 !important; }
+
+/* canvas-dots (flow-builder canvas) */
+html[data-theme="dark"] .canvas-dots                      { background-color:#0F2723 !important; background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px) !important; }
+
+/* node cards in flow-builder */
+html[data-theme="dark"] .node-card                        { background:#13312D !important; border-color:#2D5A53 !important; color:#F0EBE0 !important; }
+html[data-theme="dark"] .node-card .border-paper-100,
+html[data-theme="dark"] .node-card .border-paper-200      { border-color:#2D5A53 !important; }
+html[data-theme="dark"] .node-row:hover                   { background:#1F4540 !important; }
+html[data-theme="dark"] .port                             { background:#1F4540 !important; }
+
+/* edge stroke / preview */
+html[data-theme="dark"] .edge-path                        { stroke:#6B807C !important; }
+html[data-theme="dark"] .edge-path.hover,
+html[data-theme="dark"] .edge-path:hover                  { stroke:var(--wa-brand-text) !important; }
+
+/* GREEN-ON-GREEN fix:
+   when text-wa-deep sits inside a green-tinted surface, swap to a
+   brighter mint so it stays high contrast. */
+html[data-theme="dark"] .bg-wa-mint .text-wa-deep,
+html[data-theme="dark"] .bg-wa-mint\/30 .text-wa-deep,
+html[data-theme="dark"] .bg-wa-mint\/40 .text-wa-deep,
+html[data-theme="dark"] .bg-wa-bubble .text-wa-deep,
+html[data-theme="dark"] .bg-wa-bubble\/40 .text-wa-deep,
+html[data-theme="dark"] .bg-wa-bubble\/50 .text-wa-deep,
+html[data-theme="dark"] .bg-\[\#E8F5E9\] .text-wa-deep,
+html[data-theme="dark"] .bg-\[\#F1F9EC\] .text-wa-deep,
+html[data-theme="dark"] .bg-\[var\(--color-wa-bubble\)\] .text-wa-deep,
+html[data-theme="dark"] .bg-\[\#DFF1ED\] .text-wa-deep    { color:var(--wa-brand-bright) !important; }
+
+/* Active campaign-type / option card titles — anything wrapped by a wa-deep border */
+html[data-theme="dark"] .border-wa-deep .text-wa-deep,
+html[data-theme="dark"] .border-2.border-wa-deep .text-wa-deep   { color:var(--wa-brand-bright) !important; }
+html[data-theme="dark"] .border-wa-deep                         { border-color:var(--wa-brand-border) !important; }
+
+/* Italic accent typography (e.g. "filters", "bulk send", "campaigns") used as section labels */
+html[data-theme="dark"] .font-serif.italic.text-wa-deep,
+html[data-theme="dark"] em.text-wa-deep,
+html[data-theme="dark"] span.italic.text-wa-deep                { color:var(--wa-brand-bright) !important; }
+
+/* Keep avatars on dark theme — gradient backgrounds remain */
+/* (no override needed, but ensure ring-2 ring-paper-0 reads as dark border) */
+html[data-theme="dark"] .ring-paper-0                            { --tw-ring-color: #13312D !important; }
+
+/* Status pills (.pill-open, .pill-pending, etc. used in team-inbox) */
+html[data-theme="dark"] .pill                                    { font-weight: 600; }
+html[data-theme="dark"] .pill-open                               { background: color-mix(in srgb, var(--color-wa-green) 20%, transparent) !important; color:var(--wa-brand-bright) !important; border-color: color-mix(in srgb, var(--color-wa-green) 45%, transparent) !important; }
+html[data-theme="dark"] .pill-pending                            { background: rgba(229,160,78,0.20) !important; color:#FFD89B !important; border-color: rgba(229,160,78,0.45) !important; }
+html[data-theme="dark"] .pill-resolved                           { background: rgba(91,160,242,0.20) !important; color:#9FCBFF !important; border-color: rgba(91,160,242,0.45) !important; }
+html[data-theme="dark"] .pill-snoozed                            { background: rgba(123,87,199,0.20) !important; color:#C4AEFF !important; border-color: rgba(123,87,199,0.45) !important; }
+html[data-theme="dark"] .pill-urgent                             { background: rgba(232,122,93,0.20) !important; color:#FFB39C !important; border-color: rgba(232,122,93,0.45) !important; }
+
+/* Sidebar item dots in chat.html / contacts.html */
+html[data-theme="dark"] .group-dot,
+html[data-theme="dark"] .filter-pill .group-dot                  { box-shadow: 0 0 0 1.5px #13312D; }
+
+/* outline buttons and pills — paper-0 with paper-200 border become dark-on-dark */
+html[data-theme="dark"] button.bg-paper-0.border-paper-200,
+html[data-theme="dark"] a.bg-paper-0.border-paper-200,
+html[data-theme="dark"] .bg-paper-0.border-paper-200             { background:#1F4540 !important; border-color:#2D5A53 !important; color:#E5DFD0 !important; }
+
+/* Inputs with bg-white explicit */
+html[data-theme="dark"] input.bg-white,
+html[data-theme="dark"] textarea.bg-white,
+html[data-theme="dark"] select.bg-white                          { background-color:#1F4540 !important; }
+
+/* metric / stat card hover */
+html[data-theme="dark"] .hover\:border-wa-deep:hover             { border-color:var(--color-wa-green) !important; }
+html[data-theme="dark"] .hover\:shadow-soft:hover                { box-shadow: 0 12px 28px -10px rgba(0,0,0,0.55) !important; }
+
+/* Templates / pricing accents */
+html[data-theme="dark"] .text-wa-deep.font-medium                { color:var(--wa-brand-text) !important; }
+html[data-theme="dark"] a.text-wa-deep,
+html[data-theme="dark"] a.text-wa-deep:hover                     { color:var(--wa-brand-bright) !important; }
+
+/* Auto-reply / pricing card — bg-wa-mint with check icons inside */
+html[data-theme="dark"] .text-wa-green                           { color:var(--wa-accent-text) !important; }
+
+/* Code block snippets in connect.html and webhook pages */
+html[data-theme="dark"] code,
+html[data-theme="dark"] pre                                      { background:#1F4540 !important; color:#F0EBE0 !important; border-color:#2D5A53 !important; }
+
+/* Settings appearance preview cards (bright/dark/paper miniatures) */
+html[data-theme="dark"] .peer:checked + div                      { border-color:var(--wa-brand-text) !important; background: color-mix(in srgb, var(--color-wa-green) 10%, transparent) !important; }
+
+/* Modal overlays */
+html[data-theme="dark"] .fixed[style*="rgba(11,31,28"],
+html[data-theme="dark"] .fixed[style*="rgba(0,0,0"]              { background: rgba(0,0,0,0.65) !important; }
+
+/* Toggle states — make the ON state visibly lit. Default WA green
+ * (var(--wa-brand-bg)) on a dark canvas reads as "off-ish dark teal"; bump to a
+ * brighter green AND add a small inner glow so it's obviously "on". */
+html[data-theme="dark"] .toggle .track                           { background:#2D5A53 !important; }
+html[data-theme="dark"] .toggle .thumb                           { background:#F0EBE0 !important; }
+html[data-theme="dark"] .toggle input:checked ~ .track           {
+    background:var(--color-wa-green) !important;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-wa-green) 40%, transparent), 0 0 8px color-mix(in srgb, var(--color-wa-green) 45%, transparent);
+}
+html[data-theme="dark"] .toggle input:checked ~ .thumb           {
+    background:#FFFFFF !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+/* Light themes: bump the on-state too so paper/bright also "shine" */
+.toggle input:checked ~ .track {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-wa-deep) 25%, transparent), 0 0 6px color-mix(in srgb, var(--color-wa-deep) 18%, transparent);
+}
+
+/* Heatmap (ApexCharts) cells under dark mode — override the baked-in light fills via SVG attribute selector */
+html[data-theme="dark"] #chart-heatmap rect[fill="#F5F3EC"]      { fill:#13312D !important; }
+html[data-theme="dark"] #chart-heatmap rect[fill="#CFE3DA"]      { fill:#1F4540 !important; }
+html[data-theme="dark"] #chart-heatmap rect[fill="#9DC9B6"]      { fill:var(--wa-brand-bg) !important; }
+html[data-theme="dark"] #chart-heatmap rect[fill="#3FA37A"]      { fill:#15A074 !important; }
+html[data-theme="dark"] #chart-heatmap rect[fill="var(--color-wa-deep)"]      { fill:var(--color-wa-green) !important; }
+html[data-theme="dark"] .apexcharts-canvas text                  { fill:#C9D2CE !important; }
+html[data-theme="dark"] .apexcharts-canvas .apexcharts-gridline  { stroke:#2D5A53 !important; }
+html[data-theme="dark"] .apexcharts-canvas .apexcharts-xaxis line,
+html[data-theme="dark"] .apexcharts-canvas .apexcharts-yaxis line { stroke:#2D5A53 !important; }
+html[data-theme="dark"] .apexcharts-tooltip                      { background:#13312D !important; border-color:#2D5A53 !important; color:#F0EBE0 !important; }
+html[data-theme="dark"] .apexcharts-tooltip-title                { background:#1F4540 !important; border-color:#2D5A53 !important; }
+html[data-theme="dark"] .apexcharts-legend-text                  { color:#C9D2CE !important; }
+
+/* Italic accent label fix — now also covers when the order is text-wa-deep before italic */
+html[data-theme="dark"] [class*="italic"][class*="text-wa-deep"] { color:var(--wa-brand-bright) !important; }
+
+/* Global active-tab rounding — pages other than templates / flow use various ad-hoc tab classes
+   that render as "long square" actives. Force a consistent rounded look. The .tab-line class
+   used by templates and flow stays as underline; everything else picks up the rounded pill. */
+.cat-tab.active,
+.filter-pill.active,
+.acc-tab.active,
+.set-tab.active,
+.ti-tab.active,
+.ig-tab.active,
+.side-tab.active,
+.team-nav-btn.active,
+.pill-tab.active,
+.seg-tab.active,
+.queue-tab.active,
+.fp-tab.active                                                   { border-radius: 999px !important; }
+
+/* Sidebar filter buttons that go full-pill when pressed (chat.html / contacts.html / scheduled.html etc.) */
+.filter-btn[aria-pressed="true"],
+.filter-btn.active,
+.chat-filter[aria-pressed="true"],
+.queue-filter[aria-pressed="true"]                               { border-radius: 999px !important; }
+
+/* Also normalize the inactive shape so the click feels consistent */
+.filter-btn,
+.chat-filter,
+.queue-filter                                                    { border-radius: 999px !important; }
+
+/* When count badges sit inside an active tab, keep them perfectly round too */
+.cat-tab .count,
+.filter-pill .count,
+.tab-line .count,
+.ti-tab .badge,
+.team-nav-btn .ct                                                { border-radius: 999px !important; }
+
+/* ════════════════════════════════════════════════════════════
+   DOODLE — hand-drawn fancy theme
+   Strict color palette from src/site.css:
+     --ink: #15281F  (only one ink, used for ALL borders + body text)
+     --mint: #E8F5E9 / --mint-deep: #C8E8CB
+     --cream: #FFF6E0
+     --paper: #FFFDF5
+     --wa: var(--color-wa-green) / --wa-deep: #128C4B
+     --sun: #FFC94A / --coral: #FF7A6B / --lav: #C9B8FF / --lav-deep: #7B61FF
+   Contrast principle (from React code):
+     • body text: solid var(--ink), no opacity dilution
+     • muted text: rgba(21,40,31, 0.7) for secondary, 0.55 for tertiary
+     • cards: white/paper bg + 2px solid ink + 4–6px hard ink offset shadow
+     • primary CTA (pill-dark): ink BG + WHITE text + ink border + soft offset
+     • outline button (pill-light): white BG + ink TEXT + ink border
+     • inactive pill-tab: transparent + ink/0.7 text + ink/0.25 border
+     • active pill-tab: mint BG + ink TEXT + ink border + 2px offset shadow
+   ════════════════════════════════════════════════════════════ */
+
+/* doodle font import moved to app.css */
+
+html[data-theme="doodle"]{
+  /* Doodle is a designed illustration style with its own fixed palette — like
+     dark mode, the admin colour setting deliberately does NOT reach it. Only
+     the light (paper) and bright themes follow /admin/settings/appearance.
+
+     Re-declaring the --color-* tokens pins every Tailwind utility inside doodle
+     scope to the shipped palette, so switching the brand colour leaves this
+     theme exactly as designed. */
+  --color-wa-deep:   #075E54;
+  --color-wa-teal:   #128C7E;
+  --color-wa-green:  #25D366;
+  --color-wa-mint:   #DCF8C6;
+  --color-wa-bubble: #E7FFDB;
+
+  --d-ink:       #15281F;
+  --d-ink-72:    rgba(21,40,31,0.72);
+  --d-ink-55:    rgba(21,40,31,0.55);
+  --d-ink-25:    rgba(21,40,31,0.25);
+  --d-ink-15:    rgba(21,40,31,0.15);
+  --d-ink-10:    rgba(21,40,31,0.10);
+  --d-mint:      #E8F5E9;
+  --d-mint-deep: #C8E8CB;
+  --d-cream:     #FFF6E0;
+  --d-paper:     #FFFDF5;
+  --d-wa:        #25D366;
+  --d-wa-deep:   #128C4B;
+  --d-sun:       #FFC94A;
+  --d-coral:     #FF7A6B;
+  --d-lav:       #C9B8FF;
+  --d-lav-deep:  #7B61FF;
+  color-scheme: light;
+}
+
+html[data-theme="doodle"] body{
+  background:
+    radial-gradient(1200px 700px at 90% -10%, #FFF6E0 0%, transparent 55%),
+    radial-gradient(900px 600px at -10% 30%, #D9F1DB 0%, transparent 60%),
+    linear-gradient(180deg, #E8F5E9 0%, #F3F8E8 40%, #FFF6E0 100%) !important;
+  background-attachment: fixed;
+  color: var(--d-ink) !important;
+}
+
+/* ── BACKGROUNDS ─────────────────────────────────────────── */
+html[data-theme="doodle"] .bg-paper-50,
+html[data-theme="doodle"] .bg-paper-50\/40,
+html[data-theme="doodle"] .bg-paper-50\/60                       { background-color: #F2F8EC !important; }
+html[data-theme="doodle"] .bg-paper-0,
+html[data-theme="doodle"] .bg-paper-0\/95,
+html[data-theme="doodle"] .bg-paper-0\/40,
+html[data-theme="doodle"] .bg-paper-0\/15,
+html[data-theme="doodle"] .bg-white                              { background-color: var(--d-paper) !important; }
+html[data-theme="doodle"] .bg-paper-100                          { background-color: var(--d-mint) !important; }
+html[data-theme="doodle"] .bg-paper-200                          { background-color: var(--d-mint-deep) !important; }
+
+/* ── BORDERS — light ink at 0.18 opacity (matches React) ── */
+html[data-theme="doodle"] .border-paper-100,
+html[data-theme="doodle"] .border-paper-200,
+html[data-theme="doodle"] .border-paper-300,
+html[data-theme="doodle"] .divide-paper-200 > * + *,
+html[data-theme="doodle"] .divide-paper-100 > * + *              { border-color: var(--d-ink-25) !important; }
+html[data-theme="doodle"] .border-wa-deep                        { border-color: var(--d-ink) !important; }
+
+/* ── HEADER ─────────────────────────────────────────────── */
+html[data-theme="doodle"] header,
+html[data-theme="doodle"] [data-site-header]{
+  background: rgba(255,253,245,0.92) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid var(--d-ink-10) !important;
+}
+
+/* ── TYPOGRAPHY ─────────────────────────────────────────── */
+html[data-theme="doodle"] body,
+html[data-theme="doodle"] .font-sans                             { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+html[data-theme="doodle"] .font-serif,
+html[data-theme="doodle"] .serif,
+html[data-theme="doodle"] h1, html[data-theme="doodle"] h2, html[data-theme="doodle"] h3{
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif !important;
+  letter-spacing: -0.025em !important;
+  font-style: normal !important;
+}
+/* italic accents → Caveat hand-drawn cursive (only when class explicitly says italic) */
+html[data-theme="doodle"] em,
+html[data-theme="doodle"] .italic{
+  font-family: 'Caveat', cursive !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+
+/* ── TEXT COLORS — solid ink for primary, opacity for muted */
+html[data-theme="doodle"] .text-ink-900,
+html[data-theme="doodle"] .text-ink-800,
+html[data-theme="doodle"] .text-ink-700                          { color: var(--d-ink) !important; }
+html[data-theme="doodle"] .text-ink-600                          { color: var(--d-ink-72) !important; }
+html[data-theme="doodle"] .text-ink-500                          { color: var(--d-ink-55) !important; }
+html[data-theme="doodle"] .text-ink-400                          { color: rgba(21,40,31,0.40) !important; }
+html[data-theme="doodle"] .text-wa-deep                          { color: var(--d-wa-deep) !important; }
+html[data-theme="doodle"] .text-wa-teal                          { color: var(--color-wa-teal) !important; }
+html[data-theme="doodle"] .text-paper-0                          { color: #FFFDF5 !important; }
+
+/* ── PRIMARY CTA (.bg-wa-deep) — pill-dark style ──────────
+   ink BG, white text, thick ink border, hard offset shadow. */
+html[data-theme="doodle"] button.bg-wa-deep,
+html[data-theme="doodle"] a.bg-wa-deep,
+html[data-theme="doodle"] .bg-wa-deep{
+  background: var(--d-ink) !important;
+  color: #FFFFFF !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 3px 3px 0 0 var(--d-ink-15) !important;
+}
+html[data-theme="doodle"] button.bg-wa-deep:hover,
+html[data-theme="doodle"] a.bg-wa-deep:hover,
+html[data-theme="doodle"] .bg-wa-deep:hover{
+  background: var(--d-ink) !important;
+  color: #FFFFFF !important;
+  transform: translate(-1px,-1px);
+  box-shadow: 5px 5px 0 0 var(--d-ink-25) !important;
+}
+/* primary CTA inner SVG / icon stays white */
+html[data-theme="doodle"] .bg-wa-deep svg                        { color: #FFFFFF !important; stroke: #FFFFFF !important; }
+/* ensure secondary text classes inside primary CTA flip too */
+html[data-theme="doodle"] .bg-wa-deep .text-paper-0,
+html[data-theme="doodle"] .bg-wa-deep span,
+html[data-theme="doodle"] .bg-wa-deep .text-ink-900,
+html[data-theme="doodle"] .bg-wa-deep .text-ink-700              { color: #FFFFFF !important; }
+
+/* hover-bg-wa-teal on a wa-deep button — keep dark style on hover */
+html[data-theme="doodle"] .hover\:bg-wa-teal:hover               { background: var(--d-ink) !important; }
+
+/* ── SECONDARY CTA (.bg-paper-0 + border-paper-200 pills) ─
+   white BG, ink text, ink border, soft offset shadow. */
+html[data-theme="doodle"] button.bg-paper-0,
+html[data-theme="doodle"] a.bg-paper-0,
+html[data-theme="doodle"] button.bg-paper-0.border-paper-200,
+html[data-theme="doodle"] a.bg-paper-0.border-paper-200,
+html[data-theme="doodle"] .bg-paper-0.border-paper-200{
+  background: #FFFFFF !important;
+  color: var(--d-ink) !important;
+  border: 2px solid var(--d-ink-25) !important;
+  font-weight: 600 !important;
+}
+html[data-theme="doodle"] button.bg-paper-0:hover,
+html[data-theme="doodle"] a.bg-paper-0:hover,
+html[data-theme="doodle"] .bg-paper-0:hover                      { border-color: var(--d-ink) !important; background: #FFFFFF !important; }
+
+/* ── ACCENT SURFACES ────────────────────────────────────── */
+html[data-theme="doodle"] .bg-wa-mint,
+html[data-theme="doodle"] .bg-wa-mint\/30,
+html[data-theme="doodle"] .bg-wa-mint\/40                        { background-color: var(--d-mint) !important; color: var(--d-ink) !important; }
+html[data-theme="doodle"] .bg-wa-bubble,
+html[data-theme="doodle"] .bg-wa-bubble\/40,
+html[data-theme="doodle"] .bg-wa-bubble\/50,
+html[data-theme="doodle"] .bg-wa-bubble\/60                      { background-color: #DCFCE7 !important; color: var(--d-ink) !important; }
+html[data-theme="doodle"] .bg-wa-chat                            { background-color: #F2F8EC !important; }
+html[data-theme="doodle"] .text-wa-green                         { color: var(--d-wa-deep) !important; }
+
+/* tinted brand surfaces in light doodle palette */
+html[data-theme="doodle"] .bg-\[\#FFF4E0\],
+html[data-theme="doodle"] .bg-\[\#FFF6E0\]                       { background-color: var(--d-cream) !important; }
+html[data-theme="doodle"] .bg-\[\#F3E9FF\],
+html[data-theme="doodle"] .bg-\[\#F3ECFA\],
+html[data-theme="doodle"] .bg-\[\#F0EBFB\]                       { background-color: #F3E9FF !important; }
+html[data-theme="doodle"] .bg-\[\#FBE9E7\]                       { background-color: #FFE3DE !important; }
+html[data-theme="doodle"] .bg-\[\#D9E5F2\],
+html[data-theme="doodle"] .bg-\[\#E0EBF7\]                       { background-color: #DEEAFA !important; }
+html[data-theme="doodle"] .bg-\[\#E8F5E9\],
+html[data-theme="doodle"] .bg-\[\#F1F9EC\],
+html[data-theme="doodle"] .bg-\[var\(--color-wa-bubble\)\]                       { background-color: var(--d-mint) !important; }
+
+/* ── INPUTS ─────────────────────────────────────────────── */
+html[data-theme="doodle"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
+html[data-theme="doodle"] textarea,
+html[data-theme="doodle"] select{
+  background: #FFFFFF !important;
+  color: var(--d-ink) !important;
+  border: 2px solid var(--d-ink-25) !important;
+}
+html[data-theme="doodle"] input:focus,
+html[data-theme="doodle"] textarea:focus,
+html[data-theme="doodle"] select:focus                           { border-color: var(--d-ink) !important; outline: none; }
+html[data-theme="doodle"] ::placeholder                          { color: var(--d-ink-55) !important; opacity: 1; }
+
+/* ── ACTIVE TAB / NAV ITEMS — mint pill + ink border ────── */
+html[data-theme="doodle"] .acc-tab.active,
+html[data-theme="doodle"] .set-tab.active,
+html[data-theme="doodle"] .ti-tab.active,
+html[data-theme="doodle"] .ig-tab.active,
+html[data-theme="doodle"] .side-tab.active,
+html[data-theme="doodle"] .filter-pill.active,
+html[data-theme="doodle"] .team-nav-btn.active,
+html[data-theme="doodle"] .cat-tab.active,
+html[data-theme="doodle"] .pill-tab.active,
+html[data-theme="doodle"] .filter-btn[aria-pressed="true"]{
+  background: var(--d-mint) !important;
+  color: var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 var(--d-ink) !important;
+  border-radius: 999px !important;
+  font-weight: 700 !important;
+}
+html[data-theme="doodle"] .tab-line.active{
+  color: var(--d-ink) !important;
+  border-bottom-color: var(--d-ink) !important;
+  border-bottom-width: 3px !important;
+  font-weight: 700 !important;
+}
+/* nav-pill (top header nav) — keep ink BG + white text on active */
+html[data-theme="doodle"] .nav-pill.active,
+html[data-theme="doodle"] a.nav-pill.active{
+  background: var(--d-ink) !important;
+  color: #FFFFFF !important;
+  border-radius: 999px !important;
+}
+
+/* ── BUBBLES / CHAT ─────────────────────────────────────── */
+html[data-theme="doodle"] .bubble,
+html[data-theme="doodle"] .bubble-in{
+  background: #FFFFFF !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 3px 3px 0 0 var(--d-ink-15) !important;
+  color: var(--d-ink) !important;
+  border-radius: 18px !important;
+}
+html[data-theme="doodle"] .bubble.wa,
+html[data-theme="doodle"] .bubble-out{
+  background: var(--d-mint) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 3px 3px 0 0 var(--d-ink-15) !important;
+  color: var(--d-ink) !important;
+  border-radius: 18px !important;
+}
+html[data-theme="doodle"] .bubble-note{
+  background: var(--d-cream) !important;
+  border: 2px solid var(--d-ink) !important;
+  color: var(--d-ink) !important;
+}
+html[data-theme="doodle"] .chat-paper                            { background-color: #F2F8EC !important; }
+html[data-theme="doodle"] .chat-grid .bg-paper-0                 { background-color: #FFFFFF !important; border: 2px solid var(--d-ink) !important; color: var(--d-ink) !important; }
+html[data-theme="doodle"] .chat-grid .bg-wa-bubble               { background-color: var(--d-mint) !important; border: 2px solid var(--d-ink) !important; color: var(--d-ink) !important; }
+
+/* ── STATUS PILLS ───────────────────────────────────────── */
+html[data-theme="doodle"] .pill                                  { border: 1.5px solid var(--d-ink) !important; color: var(--d-ink) !important; }
+html[data-theme="doodle"] .pill-open                             { background: var(--d-mint) !important; color: var(--d-ink) !important; border: 1.5px solid var(--d-ink) !important; }
+html[data-theme="doodle"] .pill-pending                          { background: var(--d-cream) !important; color: var(--d-ink) !important; border: 1.5px solid var(--d-ink) !important; }
+html[data-theme="doodle"] .pill-resolved                         { background: #DEEAFA !important; color: var(--d-ink) !important; border: 1.5px solid var(--d-ink) !important; }
+html[data-theme="doodle"] .pill-snoozed                          { background: #F3E9FF !important; color: var(--d-ink) !important; border: 1.5px solid var(--d-ink) !important; }
+html[data-theme="doodle"] .pill-urgent                           { background: #FFE3DE !important; color: var(--d-ink) !important; border: 1.5px solid var(--d-ink) !important; }
+
+/* ── CARDS — hard offset ink shadow + thick border ──────── */
+html[data-theme="doodle"] .shadow-card{
+  box-shadow: 4px 4px 0 0 var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+}
+html[data-theme="doodle"] .shadow-soft{
+  box-shadow: 6px 6px 0 0 var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+}
+
+/* ── ROUNDED CORNERS — softer, hand-drawn ──────────────── */
+html[data-theme="doodle"] .rounded-2xl                           { border-radius: 22px !important; }
+html[data-theme="doodle"] .rounded-xl                            { border-radius: 18px !important; }
+html[data-theme="doodle"] .rounded-lg                            { border-radius: 14px !important; }
+html[data-theme="doodle"] .rounded-md                            { border-radius: 10px !important; }
+
+/* ── NODES (flow builder) ──────────────────────────────── */
+html[data-theme="doodle"] .node-card{
+  background: var(--d-paper) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 6px 6px 0 0 var(--d-ink-15) !important;
+  color: var(--d-ink) !important;
+  border-radius: 22px !important;
+}
+html[data-theme="doodle"] .canvas-dots{
+  background-color: #F2F8EC !important;
+  background-image: radial-gradient(rgba(21,40,31,0.16) 1.4px, transparent 1.5px) !important;
+  background-size: 20px 20px !important;
+}
+html[data-theme="doodle"] .edge-path                             { stroke: var(--d-ink) !important; stroke-width: 2.4px !important; }
+
+/* ── DROPDOWN MENUS / MODALS ────────────────────────────── */
+html[data-theme="doodle"] .menu,
+html[data-theme="doodle"] #wa-profile-menu,
+html[data-theme="doodle"] #wa-search-modal > div,
+html[data-theme="doodle"] .theme-menu{
+  background: var(--d-paper) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 4px 4px 0 0 var(--d-ink) !important;
+  border-radius: 14px !important;
+}
+html[data-theme="doodle"] .menu button                           { color: var(--d-ink) !important; }
+html[data-theme="doodle"] .menu button:hover,
+html[data-theme="doodle"] #wa-profile-menu a:hover               { background: var(--d-mint) !important; color: var(--d-ink) !important; }
+html[data-theme="doodle"] .theme-menu button.active              { background: var(--d-mint) !important; color: var(--d-ink) !important; box-shadow: 2px 2px 0 0 var(--d-ink); }
+
+/* ── KBD / CODE ─────────────────────────────────────────── */
+html[data-theme="doodle"] kbd                                    { background: var(--d-paper) !important; color: var(--d-ink) !important; border: 1.5px solid var(--d-ink) !important; }
+html[data-theme="doodle"] code,
+html[data-theme="doodle"] pre                                    { background: var(--d-mint) !important; color: var(--d-ink) !important; border: 1.5px solid var(--d-ink-25) !important; }
+
+/* ── STATUS DOT ─────────────────────────────────────────── */
+html[data-theme="doodle"] .bg-wa-green                           { background-color: var(--d-wa) !important; }
+
+/* ── HAIRLINES — match the doodle ink/0.18 line ────────── */
+html[data-theme="doodle"] .hairline-b                            { box-shadow: inset 0 -1px 0 var(--d-ink-10); }
+html[data-theme="doodle"] .hairline                              { box-shadow: inset 0 0 0 1px var(--d-ink-15); }
+
+/* ── AVATAR rings stay light in doodle ──────────────────── */
+html[data-theme="doodle"] .ring-paper-0                          { --tw-ring-color: var(--d-paper) !important; }
+
+/* ── KPI trend pills, badges ────────────────────────────── */
+html[data-theme="doodle"] .kpi-trend-up                          { background: var(--d-mint) !important; color: var(--d-wa-deep) !important; border: 1.5px solid rgba(18,140,75,0.35); }
+html[data-theme="doodle"] .kpi-trend-down                        { background: #FFEEF0 !important; color: #B83B2C !important; border: 1.5px solid rgba(184,59,44,0.35); }
+
+/* ── GRADIENT AVATAR PILLS — convert to flat ink-bordered  */
+html[data-theme="doodle"] .from-wa-teal,
+html[data-theme="doodle"] .to-wa-deep                            { /* gradients still apply — leave as-is so avatars keep punch */ }
+
+/* ════════════════════════════════════════════════════════════
+   DOODLE — FORM PRIMITIVES
+   Match React's canonical waInput/cxInput/tpxInput style:
+     "w-full px-4 py-2.5 rounded-xl border-2 border-[var(--ink)]/20
+      bg-white focus:outline-none focus:border-[var(--ink)] text-sm"
+   ════════════════════════════════════════════════════════════ */
+
+/* All inputs / selects / textareas — promote to 2px ink-tinted border on rounded-xl shape.
+   Override existing thinner borders + tan paper-200 borders set on the element itself. */
+html[data-theme="doodle"] form input[type="text"],
+html[data-theme="doodle"] form input[type="email"],
+html[data-theme="doodle"] form input[type="number"],
+html[data-theme="doodle"] form input[type="tel"],
+html[data-theme="doodle"] form input[type="url"],
+html[data-theme="doodle"] form input[type="search"],
+html[data-theme="doodle"] form input[type="password"],
+html[data-theme="doodle"] form input:not([type]),
+html[data-theme="doodle"] form select,
+html[data-theme="doodle"] form textarea,
+html[data-theme="doodle"] input.bg-white,
+html[data-theme="doodle"] select.bg-white,
+html[data-theme="doodle"] textarea.bg-white{
+  background: #FFFFFF !important;
+  color: var(--d-ink) !important;
+  border: 2px solid var(--d-ink-25) !important;
+  border-radius: 14px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+html[data-theme="doodle"] form textarea                          { border-radius: 18px !important; }
+html[data-theme="doodle"] form input:focus,
+html[data-theme="doodle"] form select:focus,
+html[data-theme="doodle"] form textarea:focus{
+  border-color: var(--d-ink) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-color: transparent !important;
+  --tw-ring-shadow: 0 0 0 0 transparent !important;
+}
+html[data-theme="doodle"] .ts-control,
+html[data-theme="doodle"] .ts-wrapper.single .ts-control{
+  background: #FFFFFF !important;
+  color: var(--d-ink) !important;
+  border: 2px solid var(--d-ink-25) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
+}
+html[data-theme="doodle"] .ts-control input,
+html[data-theme="doodle"] .ts-dropdown input { color: var(--d-ink) !important; }
+html[data-theme="doodle"] .ts-wrapper.focus .ts-control {
+  border-color: var(--d-ink) !important;
+  box-shadow: none !important;
+}
+html[data-theme="doodle"] .ts-wrapper.single .ts-control:after { border-color: var(--d-ink) transparent transparent transparent; }
+html[data-theme="doodle"] .ts-wrapper.single.dropdown-active .ts-control:after { border-color: transparent transparent var(--d-ink) transparent; }
+html[data-theme="doodle"] .ts-dropdown {
+  background: var(--d-paper) !important;
+  border: 2px solid var(--d-ink) !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0 0 var(--d-ink) !important;
+}
+html[data-theme="doodle"] .ts-dropdown .option,
+html[data-theme="doodle"] .ts-dropdown .create,
+html[data-theme="doodle"] .ts-dropdown .no-results { color: var(--d-ink) !important; }
+html[data-theme="doodle"] .ts-dropdown .active,
+html[data-theme="doodle"] .ts-dropdown .option:hover {
+  background: var(--d-mint) !important;
+  color: var(--d-ink) !important;
+}
+
+/* Form labels keep ink at 100% so they always read */
+html[data-theme="doodle"] form label,
+html[data-theme="doodle"] label.text-ink-700,
+html[data-theme="doodle"] label .text-ink-700                    { color: var(--d-ink) !important; font-weight: 600 !important; }
+
+/* "required *" asterisks stay coral so they pop */
+html[data-theme="doodle"] .text-accent-coral                     { color: var(--d-coral) !important; }
+
+/* ── STEPPER (autoreply, broadcast, scheduled, wa-campaign) ─ */
+html[data-theme="doodle"] .step-node .dot{
+  width: 30px !important;
+  height: 30px !important;
+  border-width: 2px !important;
+  border-color: var(--d-ink-25) !important;
+  background: #FFFFFF !important;
+  color: var(--d-ink-72) !important;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 0 0 transparent !important;
+}
+html[data-theme="doodle"] .step-node.active .dot,
+html[data-theme="doodle"] .step-node .dot.border-wa-deep{
+  background: var(--d-ink) !important;
+  color: var(--d-cream) !important;
+  border-color: var(--d-ink) !important;
+  --tw-ring-shadow: 0 0 0 4px rgba(21,40,31,0.10) !important;
+  box-shadow: 0 0 0 4px rgba(21,40,31,0.10) !important;
+}
+html[data-theme="doodle"] .step-node.done .dot{
+  background: var(--d-wa-deep) !important;
+  border-color: var(--d-wa-deep) !important;
+  color: #FFFFFF !important;
+}
+html[data-theme="doodle"] .step-node .lab                        { color: var(--d-ink-55) !important; font-weight: 600 !important; }
+html[data-theme="doodle"] .step-node.active .lab,
+html[data-theme="doodle"] .step-node .lab.text-wa-deep           { color: var(--d-ink) !important; font-weight: 700 !important; }
+html[data-theme="doodle"] .step-node.done .lab                   { color: var(--d-wa-deep) !important; }
+html[data-theme="doodle"] .step-node .bar{
+  height: 2px !important;
+  background: repeating-linear-gradient(90deg, var(--d-ink-25) 0 6px, transparent 6px 12px) !important;
+}
+html[data-theme="doodle"] .step-node.done .bar                   { background: var(--d-wa-deep) !important; }
+
+/* Step heading numeric badge ("01", "02") used inside step-pane */
+html[data-theme="doodle"] .step-pane .bg-paper-50.text-wa-deep,
+html[data-theme="doodle"] .step-pane .text-wa-deep.font-mono{
+  background: var(--d-mint) !important;
+  color: var(--d-wa-deep) !important;
+  border: 1.5px solid var(--d-ink-25) !important;
+  border-radius: 8px !important;
+}
+
+/* ── KEYWORD / TAG CHIPS ─────────────────────────────────── */
+html[data-theme="doodle"] .kw-chip,
+html[data-theme="doodle"] .tag-chip,
+html[data-theme="doodle"] .chip{
+  background: #FFFFFF !important;
+  border: 1.5px solid var(--d-ink-25) !important;
+  color: var(--d-ink) !important;
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+}
+html[data-theme="doodle"] .kw-chip button,
+html[data-theme="doodle"] .tag-chip button,
+html[data-theme="doodle"] .chip button{
+  background: var(--d-mint) !important;
+  color: var(--d-ink) !important;
+  border: 1px solid var(--d-ink-25) !important;
+}
+html[data-theme="doodle"] .kw-chip button:hover,
+html[data-theme="doodle"] .tag-chip button:hover{
+  background: var(--d-coral) !important;
+  color: #FFFFFF !important;
+  border-color: var(--d-coral) !important;
+}
+
+/* Chip container (the gray tray around chips + input) */
+html[data-theme="doodle"] #kw-list,
+html[data-theme="doodle"] .chip-tray{
+  background: #FFFFFF !important;
+  border: 2px solid var(--d-ink-25) !important;
+  border-radius: 14px !important;
+}
+html[data-theme="doodle"] #kw-list:focus-within,
+html[data-theme="doodle"] .chip-tray:focus-within                { border-color: var(--d-ink) !important; }
+
+/* ── SEGMENTED BUTTONS (.seg-btn / Fuzzy / Exact / Contains) ─ */
+html[data-theme="doodle"] [id^="seg-"],
+html[data-theme="doodle"] .seg-group{
+  background: var(--d-mint) !important;
+  border: 2px solid var(--d-ink-25) !important;
+  padding: 3px !important;
+  border-radius: 999px !important;
+}
+html[data-theme="doodle"] .seg-btn{
+  color: var(--d-ink-72) !important;
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+}
+html[data-theme="doodle"] .seg-btn.bg-wa-deep,
+html[data-theme="doodle"] .seg-btn.active{
+  background: var(--d-ink) !important;
+  color: #FFFFFF !important;
+  box-shadow: 2px 2px 0 0 rgba(21,40,31,0.18) !important;
+}
+html[data-theme="doodle"] .seg-btn:hover                         { color: var(--d-ink) !important; }
+
+/* ── RANGE SLIDER ────────────────────────────────────────── */
+html[data-theme="doodle"] input[type="range"]{
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  height: 22px !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+html[data-theme="doodle"] input[type="range"]::-webkit-slider-runnable-track{
+  background: var(--d-ink-15) !important;
+  height: 6px !important;
+  border-radius: 999px !important;
+  border: 1.5px solid var(--d-ink-25);
+}
+html[data-theme="doodle"] input[type="range"]::-moz-range-track{
+  background: var(--d-ink-15) !important;
+  height: 6px !important;
+  border-radius: 999px !important;
+  border: 1.5px solid var(--d-ink-25);
+}
+html[data-theme="doodle"] input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance: none !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 999px !important;
+  background: var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 rgba(21,40,31,0.18) !important;
+  margin-top: -8px !important;
+  cursor: pointer;
+}
+html[data-theme="doodle"] input[type="range"]::-moz-range-thumb{
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 999px !important;
+  background: var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 rgba(21,40,31,0.18) !important;
+  cursor: pointer;
+}
+html[data-theme="doodle"] input[type="range"].accent-wa-deep{ accent-color: var(--d-ink) !important; }
+
+/* ── CHECKBOXES / RADIOS (accent color) ─────────────────── */
+html[data-theme="doodle"] input[type="checkbox"],
+html[data-theme="doodle"] input[type="radio"]{
+  accent-color: var(--d-ink) !important;
+}
+
+/* ── CARDS — promote any standard "bg-paper-0 border border-paper-200 rounded-2xl" to admin-card style */
+html[data-theme="doodle"] .bg-paper-0.border.border-paper-200,
+html[data-theme="doodle"] .bg-paper-0.shadow-card,
+html[data-theme="doodle"] .bg-white.shadow-card{
+  background: #FFFFFF !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 4px 4px 0 0 var(--d-ink) !important;
+}
+
+/* Any element with .shadow-card alone (not button) gets the doodle hard offset */
+html[data-theme="doodle"] div.shadow-card,
+html[data-theme="doodle"] section.shadow-card,
+html[data-theme="doodle"] article.shadow-card{
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 4px 4px 0 0 var(--d-ink) !important;
+}
+
+/* Templates page grid card hover — give it lift like React .lift */
+html[data-theme="doodle"] .group.shadow-card:hover,
+html[data-theme="doodle"] a.shadow-card:hover                    { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 var(--d-ink) !important; transition: transform .15s ease, box-shadow .15s ease; }
+
+/* ── DARK-HERO CARDS (bg-wa-deep / bg-ink-900 with light children)
+   When wa-deep BG is repurposed as ink in doodle, the inner paper/15 children
+   were turned into solid paper. Restore them to translucent white so they
+   read as subtle layers ON the dark card. */
+html[data-theme="doodle"] .bg-wa-deep .bg-paper-0\/15,
+html[data-theme="doodle"] .bg-wa-deep .bg-paper-0\/40,
+html[data-theme="doodle"] .bg-wa-deep .bg-paper-0\/95            { background-color: rgba(255,255,255,0.14) !important; }
+html[data-theme="doodle"] .bg-wa-deep .border-paper-0\/15        { border-color: rgba(255,255,255,0.18) !important; }
+html[data-theme="doodle"] .bg-wa-deep .text-paper-0,
+html[data-theme="doodle"] .bg-wa-deep h1, html[data-theme="doodle"] .bg-wa-deep h2,
+html[data-theme="doodle"] .bg-wa-deep h3, html[data-theme="doodle"] .bg-wa-deep h4,
+html[data-theme="doodle"] .bg-wa-deep p,
+html[data-theme="doodle"] .bg-wa-deep span                       { color: #FFFFFF !important; }
+html[data-theme="doodle"] .bg-wa-deep .text-paper-0\/85,
+html[data-theme="doodle"] .bg-wa-deep .text-paper-0\/80,
+html[data-theme="doodle"] .bg-wa-deep .text-paper-0\/60          { color: rgba(255,255,255,0.78) !important; }
+/* and the mock SVG overlay rects inside those cards — keep them light */
+html[data-theme="doodle"] .bg-wa-deep svg rect[fill="#FBFAF6"]   { fill: rgba(255,255,255,0.30) !important; }
+
+/* "What's new" mini card (more.html) — uses bg-ink-900 */
+html[data-theme="doodle"] .bg-ink-900,
+html[data-theme="doodle"] .bg-ink-800{
+  background: var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+}
+html[data-theme="doodle"] .bg-ink-900 *,
+html[data-theme="doodle"] .bg-ink-800 *                          { color: #FFFFFF !important; }
+html[data-theme="doodle"] .bg-ink-900 .text-paper-0\/70,
+html[data-theme="doodle"] .bg-ink-900 .text-paper-0\/60,
+html[data-theme="doodle"] .bg-ink-900 .text-paper-0\/50          { color: rgba(255,255,255,0.70) !important; }
+
+/* ── FOOTER OF FORM CARD (Previous / Next / progress bar) ── */
+html[data-theme="doodle"] .step-pane .border-t,
+html[data-theme="doodle"] .form-footer                           { border-color: var(--d-ink-15) !important; }
+
+/* "Step 1 of 5" centered helper */
+html[data-theme="doodle"] .font-mono.text-ink-500                { color: var(--d-ink-55) !important; }
+
+/* Card eyebrows like "WHATSAPP CAMPAIGNS / NEW" */
+html[data-theme="doodle"] .uppercase.tracking-\[0\.18em\],
+html[data-theme="doodle"] [class*="tracking-[0.1"]                { color: var(--d-ink-55) !important; font-weight: 700 !important; }
+
+/* ── DISABLED ───────────────────────────────────────────── */
+html[data-theme="doodle"] button:disabled,
+html[data-theme="doodle"] [disabled]                             { opacity: 0.45 !important; cursor: not-allowed !important; }
+
+/* ── RING / FOCUS RINGS reduced to ink ──────────────────── */
+html[data-theme="doodle"] .focus\:ring-wa-deep\/10:focus,
+html[data-theme="doodle"] .focus\:ring-wa-deep\/20:focus,
+html[data-theme="doodle"] .focus\:ring-4:focus                   { --tw-ring-color: var(--d-ink-15) !important; }
+
+/* ── POPOVER / TOOLTIP arrows ───────────────────────────── */
+html[data-theme="doodle"] .edge-popup{
+  background: var(--d-paper) !important;
+  border: 2px solid var(--d-ink) !important;
+  color: var(--d-ink) !important;
+  box-shadow: 4px 4px 0 0 var(--d-ink) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DOODLE — CANONICAL SITE.CSS CLASSES
+   These mirror src/site.css exactly so any HTML page that
+   uses the React class names (.pill-tab, .pill-dark, .admin-card,
+   .nav-item, .search-input, .f-display, .f-script, .lift, etc.)
+   renders identically to the React reference.
+   ════════════════════════════════════════════════════════════ */
+
+html[data-theme="doodle"] .ink                                   { color: var(--d-ink) !important; }
+html[data-theme="doodle"] .bg-ink                                { background: var(--d-ink) !important; }
+html[data-theme="doodle"] .bg-mint                               { background: var(--d-mint) !important; }
+html[data-theme="doodle"] .bg-cream                              { background: var(--d-cream) !important; }
+html[data-theme="doodle"] .bg-paper                              { background: var(--d-paper) !important; }
+html[data-theme="doodle"] .bg-wa                                 { background: var(--d-wa) !important; }
+html[data-theme="doodle"] .bg-sun                                { background: var(--d-sun) !important; }
+html[data-theme="doodle"] .bg-coral                              { background: var(--d-coral) !important; }
+html[data-theme="doodle"] .bg-lav                                { background: var(--d-lav) !important; }
+html[data-theme="doodle"] .border-ink                            { border-color: var(--d-ink) !important; }
+
+/* Display + script fonts (the doodle signature) */
+html[data-theme="doodle"] .f-display{
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif !important;
+  letter-spacing: -0.025em !important;
+}
+html[data-theme="doodle"] .f-script{
+  font-family: 'Caveat', cursive !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  letter-spacing: 0 !important;
+}
+/* In doodle, .font-serif (used widely in HTML pages) renders Bricolage */
+html[data-theme="doodle"] .font-serif{
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif !important;
+  letter-spacing: -0.025em !important;
+  font-weight: 800 !important;
+  font-style: normal !important;
+}
+/* And .italic (Tailwind utility) renders as Caveat — only when explicitly italic */
+html[data-theme="doodle"] .italic,
+html[data-theme="doodle"] em{
+  font-family: 'Caveat', cursive !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Sketch cards (hand-drawn outline + offset shadow) */
+html[data-theme="doodle"] .sketch{
+  border: 2.5px solid var(--d-ink) !important;
+  box-shadow: 6px 6px 0 0 var(--d-ink) !important;
+  border-radius: 28px !important;
+  background: #FFFFFF !important;
+}
+html[data-theme="doodle"] .sketch-soft{
+  border: 2px solid var(--d-ink) !important;
+  border-radius: 28px !important;
+  background: #FFFFFF !important;
+}
+html[data-theme="doodle"] .sketch-sm{
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 4px 4px 0 0 var(--d-ink) !important;
+  border-radius: 999px !important;
+}
+
+/* Pill-dark — primary CTA (used by "Add contact", "Save", "Next", etc.) */
+html[data-theme="doodle"] .pill-dark{
+  background: var(--d-ink) !important;
+  color: #FFFFFF !important;
+  border: 2px solid var(--d-ink) !important;
+  border-radius: 999px !important;
+  padding: 10px 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: 4px 4px 0 0 rgba(21,40,31,0.15) !important;
+  transition: transform .15s ease, box-shadow .15s ease;
+  text-decoration: none;
+}
+html[data-theme="doodle"] .pill-dark:hover{
+  transform: translate(-1px,-1px);
+  box-shadow: 6px 6px 0 0 rgba(21,40,31,0.20) !important;
+}
+html[data-theme="doodle"] .pill-light{
+  background: #FFFFFF !important;
+  color: var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+  border-radius: 999px !important;
+  padding: 9px 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-weight: 600 !important;
+}
+
+/* Pill-tab — inactive tab style */
+html[data-theme="doodle"] .pill-tab{
+  border: 2px solid var(--d-ink-25) !important;
+  border-radius: 999px !important;
+  padding: 7px 14px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: var(--d-ink-72) !important;
+  background: transparent !important;
+  transition: all .15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+html[data-theme="doodle"] .pill-tab:hover{
+  color: var(--d-ink) !important;
+  border-color: var(--d-ink) !important;
+}
+html[data-theme="doodle"] .pill-tab.active{
+  background: var(--d-mint) !important;
+  border-color: var(--d-ink) !important;
+  color: var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 var(--d-ink) !important;
+}
+
+/* Admin card (the workhorse container) */
+html[data-theme="doodle"] .admin-card{
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 4px 4px 0 0 var(--d-ink) !important;
+  border-radius: 22px !important;
+  background: #FFFFFF !important;
+}
+html[data-theme="doodle"] .admin-card-soft{
+  border: 2px solid var(--d-ink-25) !important;
+  border-radius: 22px !important;
+  background: #FFFFFF !important;
+}
+
+/* Sidebar nav-item */
+html[data-theme="doodle"] .nav-item{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px !important;
+  border-radius: 14px !important;
+  color: var(--d-ink-72) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border: 2px solid transparent !important;
+  transition: background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease;
+}
+html[data-theme="doodle"] .nav-item:hover{
+  background: rgba(21,40,31,0.05) !important;
+  color: var(--d-ink) !important;
+}
+html[data-theme="doodle"] .nav-item.active{
+  background: var(--d-mint) !important;
+  border-color: var(--d-ink) !important;
+  color: var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 var(--d-ink) !important;
+}
+
+/* KPI trend chips */
+html[data-theme="doodle"] .kpi-trend-up{
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--d-mint) !important;
+  color: var(--d-wa-deep) !important;
+  border: 1.5px solid rgba(18,140,75,0.35) !important;
+  padding: 2px 8px !important; border-radius: 999px !important;
+  font-size: 12px !important; font-weight: 700 !important;
+}
+html[data-theme="doodle"] .kpi-trend-down{
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #FFEEF0 !important;
+  color: #E54B3C !important;
+  border: 1.5px solid rgba(229,75,60,0.35) !important;
+  padding: 2px 8px !important; border-radius: 999px !important;
+  font-size: 12px !important; font-weight: 700 !important;
+}
+
+/* Status pill */
+html[data-theme="doodle"] .status-pill{
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px !important; border-radius: 999px !important;
+  border: 1.5px solid var(--d-ink) !important;
+  font-weight: 600 !important; font-size: 12px !important;
+}
+
+/* Bar rows used in dashboard "top countries" etc. */
+html[data-theme="doodle"] .bar-row .bar-fill{
+  height: 10px; border-radius: 999px;
+  border: 1.5px solid var(--d-ink) !important;
+}
+html[data-theme="doodle"] .bar-row .bar-track{
+  height: 10px; border-radius: 999px;
+  border: 1.5px solid var(--d-ink-25) !important;
+  background: #FFFFFF !important;
+}
+
+/* Search input (used in topbars) */
+html[data-theme="doodle"] .search-input{
+  width: 100%;
+  background: #FFFFFF !important;
+  border: 2px solid var(--d-ink-25) !important;
+  border-radius: 999px !important;
+  padding: 9px 14px 9px 38px !important;
+  font-size: 14px !important;
+  color: var(--d-ink) !important;
+  transition: border-color .15s ease;
+}
+html[data-theme="doodle"] .search-input:focus{
+  outline: none !important;
+  border-color: var(--d-ink) !important;
+}
+
+/* Lift / lift-tilt hover effects */
+html[data-theme="doodle"] .lift{
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+html[data-theme="doodle"] .lift:hover{
+  transform: translate(-2px,-4px);
+  box-shadow: 10px 12px 0 0 var(--d-ink) !important;
+}
+html[data-theme="doodle"] .lift-tilt{
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+html[data-theme="doodle"] .lift-tilt:hover{
+  transform: translate(-2px,-4px) rotate(-1deg);
+  box-shadow: 10px 12px 0 0 var(--d-ink) !important;
+}
+
+/* Tilt utilities */
+html[data-theme="doodle"] .tilt-l                                { transform: rotate(-2deg); }
+html[data-theme="doodle"] .tilt-r                                { transform: rotate(2deg); }
+html[data-theme="doodle"] .tilt-lg                               { transform: rotate(-3deg); }
+html[data-theme="doodle"] .tilt-rg                               { transform: rotate(3deg); }
+
+/* Card hover — slight lift + tilt */
+html[data-theme="doodle"] .card-hover{ transition: transform .2s ease; }
+html[data-theme="doodle"] .card-hover:hover{ transform: translateY(-4px) rotate(-0.8deg); }
+
+/* Pulsing dot animation (live indicators) */
+@keyframes doodle-pulsedot { 0%,100%{box-shadow:0 0 0 0 color-mix(in srgb, var(--color-wa-green) 60%, transparent)} 70%{box-shadow:0 0 0 10px color-mix(in srgb, var(--color-wa-green) 0%, transparent)} }
+html[data-theme="doodle"] .pulsedot                              { animation: doodle-pulsedot 2.2s ease-out infinite; }
+
+/* Float / bob / wobble idle animations */
+@keyframes doodle-floaty { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+html[data-theme="doodle"] .floaty                                { animation: doodle-floaty 6s ease-in-out infinite; }
+@keyframes doodle-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+html[data-theme="doodle"] .bob                                   { animation: doodle-bob 4.5s ease-in-out infinite; }
+@keyframes doodle-wobble { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+html[data-theme="doodle"] .wobble                                { animation: doodle-wobble 7s ease-in-out infinite; transform-origin: center; }
+
+/* ════════════════════════════════════════════════════════════
+   DOODLE — TAILWIND-UTILITY ACTIVE-TAB PATTERNS
+   Pages widely use arbitrary variants like:
+     [&.active]:bg-wa-deep [&.active]:text-paper-0
+     [&.active]:bg-ink-900 [&.active]:text-paper-0
+     [&[aria-pressed=true]]:bg-wa-deep
+   These compile to escaped class names. Force them to render as
+   the canonical doodle "active pill-tab" (mint + ink + offset).
+   ════════════════════════════════════════════════════════════ */
+
+html[data-theme="doodle"] .filter-pill.active,
+html[data-theme="doodle"] .filter-tab.active,
+html[data-theme="doodle"] .top-tab.active,
+html[data-theme="doodle"] .side-tab.active,
+html[data-theme="doodle"] .nav-pill.active,
+html[data-theme="doodle"] .acc-tab.active,
+html[data-theme="doodle"] .set-tab.active,
+html[data-theme="doodle"] .ti-tab.active,
+html[data-theme="doodle"] .ig-tab.active,
+html[data-theme="doodle"] .cat-tab.active,
+html[data-theme="doodle"] .seg-tab.active,
+html[data-theme="doodle"] .queue-tab.active,
+html[data-theme="doodle"] .fp-tab.active,
+html[data-theme="doodle"] .team-nav-btn.active,
+html[data-theme="doodle"] [aria-pressed="true"].filter-btn,
+html[data-theme="doodle"] [data-state="active"]{
+  background: var(--d-mint) !important;
+  background-color: var(--d-mint) !important;
+  color: var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 var(--d-ink) !important;
+  border-radius: 999px !important;
+  font-weight: 700 !important;
+}
+
+/* Tailwind arbitrary-variant active classes — escape selectors */
+html[data-theme="doodle"] .\[\&\.active\]\:bg-wa-deep.active,
+html[data-theme="doodle"] .\[\&\.active\]\:bg-ink-900.active,
+html[data-theme="doodle"] .\[\&\.active\]\:bg-ink-800.active{
+  background-color: var(--d-mint) !important;
+  background: var(--d-mint) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 var(--d-ink) !important;
+  border-radius: 999px !important;
+}
+/* Active text-paper-0 utility — flip to ink so the label is legible on mint */
+html[data-theme="doodle"] .\[\&\.active\]\:text-paper-0.active,
+html[data-theme="doodle"] .\[\&\.active\]\:text-paper-0\/70.active,
+html[data-theme="doodle"] .\[\&\.active\]\:text-paper-0\/80.active{
+  color: var(--d-ink) !important;
+}
+/* Active children that used opacity (eg the count "8" with opacity-80) flip too */
+html[data-theme="doodle"] .filter-tab.active .opacity-80,
+html[data-theme="doodle"] .top-tab.active .opacity-80,
+html[data-theme="doodle"] .filter-pill.active .opacity-80,
+html[data-theme="doodle"] .side-tab.active .opacity-80,
+html[data-theme="doodle"] .nav-pill.active .opacity-80           { color: var(--d-ink) !important; opacity: 1 !important; }
+
+/* Same for [&[aria-pressed=true]] arbitrary variants on the chat filter buttons */
+html[data-theme="doodle"] .\[\&\[aria-pressed\=true\]\]\:bg-wa-deep[aria-pressed="true"]{
+  background-color: var(--d-mint) !important;
+  background: var(--d-mint) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 var(--d-ink) !important;
+  border-radius: 999px !important;
+}
+html[data-theme="doodle"] .\[\&\[aria-pressed\=true\]\]\:text-paper-0[aria-pressed="true"]{
+  color: var(--d-ink) !important;
+}
+
+/* Count badges inside active pills (the small "8", "5", "(4)" markers) */
+html[data-theme="doodle"] .filter-tab.active .font-mono,
+html[data-theme="doodle"] .top-tab.active .font-mono,
+html[data-theme="doodle"] .filter-pill.active .font-mono,
+html[data-theme="doodle"] .side-tab.active .font-mono,
+html[data-theme="doodle"] .nav-pill.active .font-mono,
+html[data-theme="doodle"] .filter-tab.active .count,
+html[data-theme="doodle"] .top-tab.active .count,
+html[data-theme="doodle"] .pill-tab.active .count,
+html[data-theme="doodle"] .tab-line.active .count{
+  background: rgba(21,40,31,0.10) !important;
+  color: var(--d-ink) !important;
+  border-radius: 999px !important;
+  padding: 1px 8px !important;
+  font-weight: 700 !important;
+  border: 1px solid var(--d-ink-25);
+}
+
+/* Inactive count chips — sit in white with ink-tint border */
+html[data-theme="doodle"] .filter-tab .font-mono,
+html[data-theme="doodle"] .top-tab .font-mono,
+html[data-theme="doodle"] .filter-pill .font-mono,
+html[data-theme="doodle"] .pill-tab .count,
+html[data-theme="doodle"] .tab-line .count{
+  background: rgba(21,40,31,0.06) !important;
+  color: var(--d-ink-72) !important;
+  border-radius: 999px !important;
+  padding: 1px 8px !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DOODLE — SIDEBAR side-tab (contacts.html, chat.html sidebars)
+   When element has both .side-tab and .bg-wa-deep, give it the
+   admin-style nav-item active look.
+   ════════════════════════════════════════════════════════════ */
+html[data-theme="doodle"] .side-tab.bg-wa-deep,
+html[data-theme="doodle"] .side-tab[class*="bg-wa-deep"]{
+  background: var(--d-mint) !important;
+  color: var(--d-ink) !important;
+  border: 2px solid var(--d-ink) !important;
+  box-shadow: 2px 2px 0 0 var(--d-ink) !important;
+  border-radius: 14px !important;
+}
+html[data-theme="doodle"] .side-tab.bg-wa-deep .text-paper-0,
+html[data-theme="doodle"] .side-tab[class*="bg-wa-deep"] .text-paper-0,
+html[data-theme="doodle"] .side-tab.bg-wa-deep span,
+html[data-theme="doodle"] .side-tab.bg-wa-deep .font-mono{
+  color: var(--d-ink) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DOODLE — TAB-LINE (templates / flows underline tabs)
+   Make underline thicker + ink color when active.
+   ════════════════════════════════════════════════════════════ */
+html[data-theme="doodle"] .tab-line                              { color: var(--d-ink-72) !important; font-weight: 600 !important; }
+html[data-theme="doodle"] .tab-line:hover                        { color: var(--d-ink) !important; }
+html[data-theme="doodle"] .tab-line.active{
+  color: var(--d-ink) !important;
+  font-weight: 800 !important;
+  border-bottom-color: var(--d-ink) !important;
+  border-bottom-width: 3px !important;
+}
+/* count chip inside templates "All 71" tab-line */
+html[data-theme="doodle"] .tab-line .count{
+  background: var(--d-mint) !important;
+  border: 1.5px solid var(--d-ink-25) !important;
+  color: var(--d-ink) !important;
+  font-weight: 700 !important;
+}
+html[data-theme="doodle"] .tab-line.active .count{
+  background: var(--d-ink) !important;
+  color: #FFFFFF !important;
+  border-color: var(--d-ink) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DOODLE — H1/H2 etc. inherit Bricolage even when rendered as
+   serif via Tailwind. f-script fonts get attached to anything
+   with .italic or <em> already (via the .italic rule above).
+   ════════════════════════════════════════════════════════════ */
+html[data-theme="doodle"] h1,
+html[data-theme="doodle"] h2,
+html[data-theme="doodle"] h3,
+html[data-theme="doodle"] h4,
+html[data-theme="doodle"] h5{
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif !important;
+  letter-spacing: -0.025em !important;
+  font-weight: 800 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DOODLE — UTILITY OVERRIDES that frequently show in HTML pages
+   ════════════════════════════════════════════════════════════ */
+
+/* tracking utility used as eyebrows */
+html[data-theme="doodle"] .tracking-\[0\.18em\],
+html[data-theme="doodle"] .tracking-\[0\.16em\],
+html[data-theme="doodle"] .tracking-\[0\.2em\]                   { color: var(--d-ink-55) !important; font-weight: 700 !important; }
+
+/* font-mono (eyebrow / kbd hints) keep readable */
+html[data-theme="doodle"] .font-mono                             { color: inherit; }
+
+/* Hover utility that flips to wa-deep BG — keep as ink hover */
+html[data-theme="doodle"] .hover\:bg-wa-deep:hover               { background: var(--d-ink) !important; color: #FFFFFF !important; }
+html[data-theme="doodle"] .hover\:text-paper-0:hover             { color: #FFFFFF !important; }
+
+/* Common dark-pill hover preview pattern (e.g. "Last 30d" pill that turns dark on hover) */
+html[data-theme="doodle"] .group:hover .group-hover\:bg-wa-deep,
+html[data-theme="doodle"] .group:hover .group-hover\:text-paper-0{ background: var(--d-mint) !important; color: var(--d-ink) !important; }
+
+/* Stat / kpi big number — use Bricolage */
+html[data-theme="doodle"] .text-\[34px\],
+html[data-theme="doodle"] .text-\[40px\],
+html[data-theme="doodle"] .text-\[44px\],
+html[data-theme="doodle"] .text-\[48px\],
+html[data-theme="doodle"] .text-\[52px\]{
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* ─── Per-page styles, merged for Vite bundling ─── */
+
+/* === auth-login === */
+/* showcase backdrop */
+  .auth-art {
+    background:
+      radial-gradient(80% 60% at 30% 20%, color-mix(in srgb, var(--color-wa-green) 18%, transparent) 0, transparent 50%),
+      radial-gradient(60% 50% at 80% 80%, color-mix(in srgb, var(--color-wa-deep) 30%, transparent) 0, transparent 60%),
+      linear-gradient(135deg, var(--color-wa-deep) 0%, #13312D 100%);
+  }
+  .blob { position:absolute; border-radius:50%; filter: blur(60px); opacity:0.45; }
+  .quote { background: rgba(11,31,28,0.32); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.10); }
+/* === auth-register === */
+.auth-art {
+    background:
+      radial-gradient(75% 60% at 30% 70%, rgba(229,160,78,0.18) 0, transparent 55%),
+      radial-gradient(60% 50% at 80% 20%, color-mix(in srgb, var(--color-wa-green) 18%, transparent) 0, transparent 55%),
+      linear-gradient(135deg, var(--color-wa-deep) 0%, #13312D 100%);
+  }
+  .blob { position:absolute; border-radius:50%; filter: blur(60px); opacity:0.45; }
+  .stat-pill { background: rgba(11,31,28,0.32); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.10); }
+
+/* === auth shell · Aurora variant (V5) — animated gradient mesh === */
+.auth-aurora {
+  background-color: #f4f4f5;
+  background-image:
+    radial-gradient(40% 50% at 20% 20%, color-mix(in srgb, var(--color-wa-green) 30%, transparent) 0, transparent 60%),
+    radial-gradient(45% 55% at 80% 25%, color-mix(in srgb, var(--color-wa-deep) 26%, transparent) 0, transparent 60%),
+    radial-gradient(50% 50% at 65% 88%, rgba(229,160,78,0.24) 0, transparent 60%),
+    radial-gradient(42% 50% at 12% 82%, rgba(37,99,235,0.18) 0, transparent 60%);
+  background-size: 200% 200%;
+  animation: auth-aurora-pan 20s ease-in-out infinite;
+}
+@keyframes auth-aurora-pan {
+  0%, 100% { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 100%; }
+  50%      { background-position: 30% 25%, 70% 35%, 40% 70%, 25% 80%; }
+}
+@media (prefers-reduced-motion: reduce) { .auth-aurora { animation: none; } }
+
+/* === checkout-failed === */
+@keyframes shake-in {
+    0%   { transform: scale(0.6) translateX(0); opacity: 0; }
+    50%  { opacity: 1; }
+    60%  { transform: scale(1) translateX(-6px); }
+    72%  { transform: scale(1) translateX(6px); }
+    84%  { transform: scale(1) translateX(-3px); }
+    100% { transform: scale(1) translateX(0); }
+  }
+  .x-icon { animation: shake-in .55s ease-out; }
+/* === checkout-success === */
+@keyframes ringIn  { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes drawTick { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
+  .tick-ring { animation: ringIn .35s ease-out; }
+  .tick-path { stroke-dasharray: 30; animation: drawTick .55s .15s ease-out forwards; }
+
+  @keyframes confetti-fall {
+    0%   { transform: translateY(-20vh) rotate(0deg);   opacity: 0; }
+    10%  { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+  .confetti { position: fixed; top:0; width:8px; height:14px; border-radius:2px; pointer-events:none; animation: confetti-fall 4s linear infinite; }
+/* === user-account-index === */
+.acc-tab { display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:10px; font-size:12.5px; color:#3A5A55; cursor:pointer; transition: background .12s; }
+  .acc-tab:hover { background:var(--color-paper-50); }
+  .acc-tab.active { background:var(--color-wa-deep); color:var(--color-paper-0); font-weight:600; }
+  .acc-tab.danger { color:#A1431F; }
+  .acc-tab.danger:hover { background:#FBE9E7; }
+  .acc-tab.danger.active { background:#E87A5D; color:var(--color-paper-0); }
+/* === user-flows-builder === */
+body[data-page="user-flows-builder"], body[data-page="user-flows-builder"] #root { height:100%; overflow:hidden; }
+  body[data-page="user-flows-builder"] { margin:0; }
+
+  .canvas-dots {
+    background-color: var(--color-paper-50);
+    background-image: radial-gradient(circle, rgba(11,31,28,0.10) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .canvas-dots.dragging { cursor: grabbing; }
+
+  .node-card {
+    background:var(--color-paper-0);
+    border:1px solid var(--color-paper-200);
+    border-radius:16px;
+    box-shadow: 0 1px 0 rgba(11,31,28,0.04), 0 6px 16px -10px rgba(11,31,28,0.18);
+    transition: box-shadow .14s ease, border-color .14s ease;
+  }
+  .node-card.selected { border-color:var(--color-wa-deep); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-wa-deep) 28%, transparent), 0 14px 30px -14px color-mix(in srgb, var(--color-wa-deep) 36%, transparent); }
+  .node-card.dragging { box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-wa-deep) 34%, transparent), 0 18px 30px -14px color-mix(in srgb, var(--color-wa-deep) 42%, transparent); }
+  .node-row { transition: background .14s ease; border-radius:10px; }
+  .node-row:hover { background:var(--color-paper-50); }
+
+  .port {
+    width:14px; height:14px; border-radius:50%;
+    background:var(--color-paper-0); border:2px solid var(--color-ink-500);
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+  }
+  .port.is-yes { background:var(--color-wa-mint); border-color:var(--color-wa-deep); }
+  .port.is-no  { background:#FBE9E7; border-color:#E87A5D; }
+  .port.out { cursor:crosshair; right:-7px; top:50%; transform: translateY(-50%); position:absolute; }
+  .port.in  { cursor:cell;     left:-7px;  top:50%; transform: translateY(-50%); position:absolute; }
+  .port:hover, .port.active { background:var(--color-wa-mint); border-color:var(--color-wa-deep); box-shadow:0 0 0 4px color-mix(in srgb, var(--color-wa-deep) 14%, transparent); }
+  .port.out:hover, .port.out.active, .port.in:hover, .port.in.active { transform: translateY(-50%) scale(1.18); }
+
+  .edge-path { fill:none; stroke:#B5BAB6; stroke-width:1.6; stroke-dasharray:6 6; transition: stroke .14s, stroke-width .14s; }
+  .edge-path:hover, .edge-path.hover { stroke:var(--color-ink-500); stroke-width:2; cursor:pointer; }
+  .edge-path.no { stroke:#E0A39A; }
+  .edge-path.no:hover, .edge-path.no.hover { stroke:#C56B4F; }
+  .edge-path.preview { stroke:var(--color-wa-deep); stroke-dasharray:5 4; stroke-width:2; pointer-events:none; }
+  /* invisible wider hit-target overlay for easier clicking */
+  .edge-hit { fill:none; stroke:transparent; stroke-width:14; cursor:pointer; pointer-events:stroke; }
+
+  /* node action bar (pencil + delete) shown when a node is selected */
+  .node-actions {
+    position:absolute; transform: translateX(-50%);
+    background:#fff; border:1px solid var(--color-paper-200); border-radius:10px;
+    box-shadow: 0 6px 16px -6px rgba(11,31,28,0.18), 0 1px 2px rgba(11,31,28,0.06);
+    padding:4px; display:flex; gap:2px;
+    animation: popIn .12s ease;
+    z-index:25;
+  }
+  .node-actions button { width:30px; height:30px; border-radius:8px; display:grid; place-items:center; color:#3A5A55; background:transparent; border:0; cursor:pointer; transition: background .12s, color .12s; }
+  .node-actions button:hover { background:var(--color-paper-50); color:var(--color-wa-deep); }
+  .node-actions button.danger:hover { background:#FBE9E7; color:#C56B4F; }
+
+  /* minimap */
+  .minimap { position:absolute; right:16px; bottom:64px; width:170px; height:110px; background:#0E2A26; border:1px solid #1F3F3A; border-radius:8px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); overflow:hidden; z-index:20; }
+  .minimap svg { width:100%; height:100%; display:block; }
+  .minimap .mm-node { fill:var(--color-wa-green); stroke:var(--color-wa-deep); stroke-width:1; opacity:0.85; }
+  .minimap .mm-view { fill:color-mix(in srgb, var(--color-wa-green) 18%, transparent); stroke:var(--color-wa-green); stroke-width:1; stroke-dasharray:3 3; cursor:move; }
+
+  /* edge delete popup */
+  .edge-popup {
+    position:absolute; transform: translate(-50%, -100%);
+    background:#fff; border:1px solid var(--color-paper-200); border-radius:10px;
+    box-shadow: 0 6px 16px -6px rgba(11,31,28,0.18), 0 1px 2px rgba(11,31,28,0.06);
+    padding:6px 12px; display:flex; align-items:center; gap:6px;
+    font-size:13px; color:#3A5A55; cursor:pointer;
+    animation: popIn .12s ease;
+  }
+  .edge-popup:hover { color:#C56B4F; }
+  .edge-popup::after {
+    content:''; position:absolute; left:50%; bottom:-6px; transform: translateX(-50%) rotate(45deg);
+    width:10px; height:10px; background:#fff; border-right:1px solid var(--color-paper-200); border-bottom:1px solid var(--color-paper-200);
+  }
+  @keyframes popIn { from { opacity:0; transform: translate(-50%, calc(-100% + 6px)); } to { opacity:1; transform: translate(-50%, -100%); } }
+
+  .pal-card { transition: background .14s, border-color .14s; }
+  .pal-card:hover { background:var(--color-paper-50); border-color:var(--color-wa-deep); }
+
+  .ins-panel { animation: slideIn .22s ease; }
+  @keyframes slideIn { from { transform: translateX(20px); opacity:0; } to { transform: translateX(0); opacity:1; } }
+
+  .bubble { background:var(--color-paper-0); border:1px solid var(--color-paper-200); border-radius:10px 10px 10px 3px; padding:7px 9px; font-size:11.5px; line-height:1.45; color:var(--color-ink-900); }
+  .bubble.wa { background:var(--color-wa-bubble); border-color:#C6E8B5; border-radius:10px 10px 3px 10px; }
+
+  kbd { font-family:'JetBrains Mono', monospace; font-size:9.5px; padding:1px 5px; border:1px solid var(--color-paper-200); border-radius:4px; background:var(--color-paper-0); color:var(--color-ink-700); }
+
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(11,31,28,0.18); border-radius:999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(11,31,28,0.32); }
+
+  .chip-icon { width:30px; height:30px; border-radius:9px; display:grid; place-items:center; flex-shrink:0; }
+  .chip-icon-sm { width:22px; height:22px; border-radius:6px; display:grid; place-items:center; flex-shrink:0; }
+/* === user-settings-index === */
+.set-tab { display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:10px; font-size:12.5px; color:#3A5A55; cursor:pointer; transition: background .12s; }
+  .set-tab:hover { background:var(--color-paper-50); }
+  .set-tab.active { background:var(--color-wa-deep); color:var(--color-paper-0); font-weight:600; }
+  .toggle { position:relative; display:inline-block; width:36px; height:20px; }
+  .toggle input { opacity:0; width:0; height:0; }
+  .toggle .track { position:absolute; inset:0; background:var(--color-paper-200); border-radius:999px; transition:.18s; }
+  .toggle .thumb { position:absolute; top:2px; left:2px; width:16px; height:16px; background:var(--color-paper-0); border-radius:50%; transition:.18s; box-shadow: 0 1px 3px rgba(11,31,28,.2); }
+  .toggle input:checked ~ .track { background:var(--color-wa-deep); }
+  .toggle input:checked ~ .thumb { left:18px; }
+/* === user-shopify-dashboard === */
+/* shop hero search backdrop (subtle grid) */
+  .shop-hero {
+    background:
+      linear-gradient(0deg, rgba(255,255,255,0.6), rgba(255,255,255,0.6)),
+      repeating-linear-gradient(0deg,  rgba(11,31,28,0.05) 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(90deg, rgba(11,31,28,0.05) 0 1px, transparent 1px 22px);
+  }
+  /* product card image area */
+  .prod-img { background: linear-gradient(135deg, var(--color-paper-50) 0%, var(--color-paper-100) 100%); }
+  /* sales-trend cell tints */
+  .delta-up   { color:#0E8A3E; }
+  .delta-down { color:#C56B4F; }
+  /* tabs */
+  .ig-tab { color:#3A5A55; padding:10px 14px; border-radius:10px; font-size:13px; display:flex; align-items:center; gap:10px; transition: background .12s; }
+  .ig-tab:hover { background:var(--color-paper-50); }
+  .ig-tab.active { background:var(--color-wa-deep); color:var(--color-paper-0); font-weight:600; }
+  .ig-tab.active .count { background: rgba(255,255,255,0.18); color:#fff; }
+  .count { background:var(--color-paper-50); color:#3A5A55; padding:1px 7px; border-radius:999px; font-size:10px; font-family: 'JetBrains Mono', monospace; margin-left:auto; }
+/* === user-team-inbox-index === */
+/* Unified Inbox is now a full-page view (:hide-header on the blade), so the
+   frame owns the whole viewport rather than subtracting a 64px app header. */
+.ti-frame { height: 100dvh; display:grid; grid-template-columns: 200px 290px 1fr 320px; }
+  .ti-frame.no-contact { grid-template-columns: 200px 290px 1fr 0; }
+  .ti-frame.no-contact .ti-contact { display:none; }
+  /* The Omni thin dark rail is INBOX-ONLY (#ti-frame). Team chat reuses the
+     same .ti-frame class for its own 200px nav, so the 64px override must key
+     on the id — otherwise team-chat's nav gets squished to 64px. */
+  #ti-frame.ti-frame { grid-template-columns: 64px 290px 1fr 320px; }
+  #ti-frame.ti-frame.no-contact { grid-template-columns: 64px 290px 1fr 0; }
+  .ti-col   { height: 100%; min-height: 0; display: flex; flex-direction: column; }
+
+  /* ── Collapsible team-nav rail ───────────────────────────────────
+     Collapsing narrows column 1 to an icon strip and hands the freed
+     ~140px to the thread, which is where the operator actually reads.
+     Only the FIRST column collapses; queue / thread / contact keep
+     their widths so nothing reflows sideways.
+
+     Labels are hidden with display:none rather than opacity so they
+     can't catch clicks or force the button wider than the rail. The
+     buttons re-centre their icon and drop the count pill (it has no
+     room and the number is meaningless without its label). */
+  /* The Omni rail is already at its thin fixed width, so the legacy
+     nav-collapsed state is a no-op — pin it to the same 64px so a stale
+     "collapsed" localStorage flag can't shrink column 1. Inbox-only (#ti-frame)
+     so team-chat's shared .ti-frame class is untouched. */
+  #ti-frame.ti-frame.nav-collapsed { grid-template-columns: 64px 290px 1fr 320px; }
+  #ti-frame.ti-frame.nav-collapsed.no-contact { grid-template-columns: 64px 290px 1fr 0; }
+  /* The nav labels are bare text nodes inside their buttons, so they can't
+     be hidden individually. font-size:0 must be forced onto EVERY element
+     in the rail — setting it only on the container does nothing, because
+     each button declares its own size via a utility class and wins on
+     specificity. That is why the first attempt still showed wrapped
+     labels. The SVGs get their size restored explicitly below. */
+  .ti-frame.nav-collapsed .ti-nav-scroll,
+  .ti-frame.nav-collapsed .ti-nav-scroll * { font-size: 0 !important; }
+
+  /* One flex column with a fixed gap, rather than per-row margin patches.
+     Patching margins left the rhythm uneven because different rows carry
+     different Tailwind spacing utilities; a single `gap` makes every item
+     equidistant no matter what markup produced it. */
+  .ti-frame.nav-collapsed .ti-nav-scroll {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; padding: 8px 0 !important;
+  }
+  .ti-frame.nav-collapsed .ti-nav-scroll > *,
+  .ti-frame.nav-collapsed .ti-nav-scroll #team-nav-list > * { margin: 0 !important; }
+  .ti-frame.nav-collapsed .ti-nav-scroll #team-nav-list {
+      display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;
+  }
+
+  /* Uniform 36×36 hit target, centred. width:36px (not 100%) keeps the
+     ACTIVE pill a neat square instead of a full-width blob that read as
+     an oversized circle. */
+  .ti-frame.nav-collapsed .ti-nav-scroll .team-nav-btn {
+      display: flex; justify-content: center; align-items: center;
+      gap: 0; padding: 0 !important; width: 36px; height: 36px;
+      border-radius: 10px; flex: none;
+  }
+  /* flex:none stops the icon being squeezed by the now-zero-width label. */
+  .ti-frame.nav-collapsed .ti-nav-scroll svg {
+      width: 17px !important; height: 17px !important; flex: none;
+  }
+  /* Counts, "+ create" buttons and the empty-state text carry information
+     that is meaningless at this width. */
+  .ti-frame.nav-collapsed .ti-nav-scroll .ct,
+  .ti-frame.nav-collapsed .ti-nav-scroll .ti-nav-add,
+  .ti-frame.nav-collapsed .ti-nav-scroll #team-nav-empty { display: none !important; }
+
+  /* Section captions become a short centred rule — the groups stay
+     readable as groups without unreadable stub text. */
+  .ti-frame.nav-collapsed .ti-nav-scroll .ti-nav-caption {
+      display: block !important; width: 18px; height: 1px; padding: 0 !important;
+      margin: 6px 0 !important; border-radius: 1px; flex: none;
+      background: rgb(var(--paper-200, 231 229 224));
+  }
+  /* The Teams / Settings captions sit inside a flex header row alongside
+     their "+" button; collapse that wrapper to just the rule. */
+  .ti-frame.nav-collapsed .ti-nav-scroll > .flex { display: block !important; width: 18px; }
+
+  /* The Teams group is hidden entirely when collapsed. Every team row's
+     only mark is a coloured status dot, and one dot looks exactly like
+     the next — the operator can't tell SnapNest from any other team, so
+     the row is noise. Teams reappear the moment the rail is expanded. */
+  .ti-frame.nav-collapsed .ti-nav-scroll #team-nav-list,
+  .ti-frame.nav-collapsed .ti-nav-scroll .ti-nav-teams-head { display: none !important; }
+  .ti-frame.nav-collapsed .ti-nav-label { display: none !important; }
+
+  /* The toggle stays visible in both states. Borderless so it reads as a
+     control, not a boxed-in button competing with the nav icons. */
+  .ti-nav-toggle { display: inline-flex; align-items: center; justify-content: center;
+                   width: 28px; height: 28px; border-radius: 8px; border: 0;
+                   color: rgb(var(--ink-500, 122 122 122)); background: transparent;
+                   transition: background-color .15s ease, color .15s ease; }
+  .ti-nav-toggle:hover { background: rgb(var(--paper-100, 240 238 233)); color: rgb(var(--ink-900, 26 26 26)); }
+  .ti-frame.nav-collapsed .ti-nav-toggle svg { transform: rotate(180deg); }
+  /* Collapsed: the toggle is alone on its row, so centre it over the icon
+     column instead of leaving it hard against the left edge. */
+  .ti-frame.nav-collapsed .ti-nav-head > div { justify-content: center; }
+
+  /* ── Mobile / tablet stacking ────────────────────────────────────
+     The 4-column desktop layout doesn't fit below ~1024px. Strategy:
+     - tablet (768–1023px): collapse to 2 columns — drop the team-nav
+       sidebar (column 1), keep queue + thread side by side, and the
+       contact panel becomes a right-hand overlay drawer.
+     - phone (<768px): true mobile-app flow — ONE screen at a time.
+       Queue (the conversation list) is the home screen. Tapping a row
+       slides the thread over it (`mobile-thread-open` on #ti-frame);
+       the back chevron returns to the list. The contact / options
+       panel is a FULL-SCREEN overlay that only appears when the
+       operator taps the details button, and its × returns to the
+       thread — it never auto-covers the chat (see the JS guard that
+       forces it closed on phones when a conversation opens).
+     The JS toggles `mobile-thread-open` when the user picks a
+     conversation, and back off when they tap the back chevron;
+     `no-contact` controls the details overlay. */
+
+  /* ── Tablet: 768–1023px ── */
+  @media (max-width: 1023.98px) {
+    /* minmax(0,1fr) (not a bare 1fr) so the thread column can never grow
+       past the viewport — a bare 1fr is minmax(auto,1fr) and long message
+       text / the header action row would blow the track wide, pushing the
+       right-aligned outgoing bubbles off-screen (they looked "cut off"). */
+    .ti-frame { grid-template-columns: 280px minmax(0, 1fr); }
+    .ti-frame.no-contact { grid-template-columns: 280px minmax(0, 1fr); }
+    .ti-frame > .ti-col { min-width: 0; }                         /* let grid children shrink */
+    .ti-frame > aside:first-child { display: none; }              /* hide team-nav sidebar */
+    /* z-index 45 sits ABOVE the app header (z-40) so the drawer still covers
+       it, but BELOW every team-inbox modal (z-50 / z-60). Was 60 — higher than
+       the z-50 modals, so a modal opened FROM this panel (Reassign, Change AI
+       agent, +Tag, +Deal, notes) rendered BEHIND the panel on mobile. */
+    .ti-contact { position: fixed; right: 0; top: 0; bottom: 0; width: min(360px, 92vw); z-index: 45; box-shadow: -8px 0 24px rgba(0,0,0,0.10); }
+    .ti-frame:not(.no-contact) .ti-contact { display: flex !important; }
+    .ti-frame.no-contact .ti-contact { display: none !important; }
+  }
+
+  /* ── Phone: <768px — app-style single-pane master/detail ── */
+  @media (max-width: 767.98px) {
+    /* Single column at every state. NOTE: #ti-frame always carries the
+       `no-contact` class, and the tablet query above sets
+       `.ti-frame.no-contact { 280px 1fr }` (specificity 0,2,0). Both
+       media queries match at phone width, so we MUST override the
+       `.no-contact` selector here too — a plain `.ti-frame` rule (0,1,0)
+       loses to it and the phone would keep the tablet's 2-col grid.
+       Use dynamic viewport height so the mobile browser chrome (address
+       bar) can't clip the composer; vh calc is the pre-dvh fallback. */
+    .ti-frame,
+    .ti-frame.no-contact,
+    .ti-frame.mobile-thread-open,
+    .ti-frame.mobile-thread-open.no-contact {
+      grid-template-columns: minmax(0, 1fr);
+      height: calc(100vh - 56px);
+      height: 100dvh;
+    }
+
+    /* Let the single column + its flex children shrink to the viewport so
+       wide content wraps instead of overflowing (fixes clipped bubbles). */
+    .ti-frame > .ti-col { min-width: 0; max-width: 100vw; }
+    #thread { overflow-x: hidden; }
+
+    .ti-frame > aside:first-child { display: none; }               /* team-nav never shown */
+
+    /* Home screen = queue list (full width). Thread is off-screen. */
+    .ti-frame > aside.ti-col:nth-child(2) { display: flex; width: 100%; }
+    .ti-frame > main.ti-col               { display: none; }
+
+    /* Conversation open = thread takes the whole screen, list hidden. */
+    .ti-frame.mobile-thread-open > aside.ti-col:nth-child(2) { display: none; }
+    .ti-frame.mobile-thread-open > main.ti-col               { display: flex; width: 100%; }
+
+    /* Details / options = full-screen overlay above the thread. Only
+       shown when the panel is open (#ti-frame lacks .no-contact). */
+    .ti-contact {
+      position: fixed; inset: 0;
+      width: 100vw; height: 100dvh;
+      /* Below the modals (z-50/z-60) so a modal opened from this full-screen
+         details overlay lands IN FRONT of it, not behind. Above header (z-40). */
+      z-index: 45;
+      box-shadow: none;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ti-frame:not(.no-contact) .ti-contact { display: flex !important; }
+    .ti-frame.no-contact .ti-contact       { display: none !important; }
+
+    /* ── Compact thread header (phone only) ──────────────────────────
+       On a phone the header is: [back] [avatar] [name + meta] [actions].
+       Two things were broken: the long conversation title ("Arpit Refund
+       Updates") wrapped word-by-word into a tall stack because it had no
+       nowrap, and the action row (assign / AI / call / snooze / deal /
+       resolve / details) had more buttons than fit and clipped. Fix both
+       WITHOUT touching desktop — every rule is inside this media query. */
+    #th-header { gap: 8px; padding: 10px 12px; flex-wrap: wrap; align-items: center; }
+
+    /* name/meta block takes the middle and is allowed to shrink */
+    #th-header > div.min-w-0 { flex: 1 1 0%; min-width: 0; }
+    /* both meta rows (name+status+SLA, phone+presence+device) stay on
+       one line — no vertical stacking */
+    #th-header > div.min-w-0 > div { flex-wrap: nowrap; overflow: hidden; min-width: 0; }
+    /* the title truncates with an ellipsis instead of wrapping */
+    #th-header #th-name {
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 15px;
+    }
+
+    /* action row: drops to its OWN full-width row below the name and WRAPS
+       into 2–3 lines so every button (assign / AI / call / snooze / deal /
+       resolve / details) stays visible — no horizontal clipping / swipe. */
+    #th-header > div.relative {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: 100%;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      overflow: visible;
+      margin-top: 4px;
+      row-gap: 6px;
+    }
+    #th-header > div.relative > * { flex: 0 0 auto; }
+  }
+
+  /* Back chevron — phone only (returns from thread to the list). */
+  .mobile-back { display: none; }
+  @media (max-width: 767.98px) {
+    .mobile-back { display: inline-flex; }
+  }
+
+/* ═══════════════════════════════════════════════════════════════════
+   OMNI INBOX skin — grafted onto the existing wired inbox (#ti-frame).
+   The mockup (Omni-Inbox) uses the SAME paper/ink/wa-deep/mint tokens
+   this app already ships, so this layer adds only (a) per-channel accent
+   colours WhatsApp doesn't own, (b) the net-new Omni components (channel
+   rail tabs, segmented Active/Mine/Queue/AI, AI-suggest bar, journey
+   timeline, avatar channel badge, contact-panel channel chips), and
+   (c) channel-aware chat tinting driven by #ti-frame[data-ch].
+   Every rule is scoped under #ti-frame so it can't leak to other pages.
+   ═══════════════════════════════════════════════════════════════════ */
+  #ti-frame {
+    /* Channel accents — WhatsApp reuses the brand token; the rest are the
+       platforms' own marks so a thread reads as "which channel" at a glance. */
+    --ch-wa:  var(--color-wa-green, #25D366);
+    --ch-ig:  #E1306C;
+    --ch-ms:  #0084FF;
+    --ch-tg:  #229ED9;
+    --ch-em:  #C0563B;
+    --ai-purple: #5B3D8A;
+    --ai-purple-bg: #F3E9FF;
+  }
+
+  /* ── Avatar channel badge — a small platform glyph pinned bottom-right
+        of the conversation avatar (list rows, chat header, contact card). */
+  .ti-avwrap { position: relative; flex: 0 0 auto; display: inline-grid; }
+  .ti-chbadge { position: absolute; right: -3px; bottom: -3px; width: 17px; height: 17px;
+                border-radius: 6px; display: grid; place-items: center; color: #fff;
+                border: 2px solid var(--color-paper-0); }
+  .ti-chbadge svg { width: 9px; height: 9px; }
+  .ti-chbadge.ch-wa { background: var(--ch-wa); }
+  .ti-chbadge.ch-ig { background: var(--ch-ig); }
+  .ti-chbadge.ch-ms { background: var(--ch-ms); }
+  .ti-chbadge.ch-tg { background: var(--ch-tg); }
+  .ti-chbadge.ch-em { background: var(--ch-em); }
+
+  /* ── Channel filter tabs (colour-coded) — replaces the plain device
+        <select>. "All" + one pill per connected channel, each with a count. */
+  .ti-chtabs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ti-chtab { position: relative; display: inline-flex; align-items: center; gap: 6px;
+              height: 30px; padding: 0 11px; border-radius: 99px; font-size: 11.5px;
+              font-weight: 600; color: var(--color-ink-600); border: 1px solid var(--color-paper-200);
+              background: var(--color-paper-0); transition: .13s; white-space: nowrap; }
+  .ti-chtab:hover { background: var(--color-paper-50); }
+  .ti-chtab.icon-only { padding: 0 8px; gap: 5px; }
+  .ti-chtab svg { width: 14px; height: 14px; }
+  .ti-chtab .n { font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 700;
+                 min-width: 15px; height: 15px; padding: 0 4px; border-radius: 99px;
+                 background: var(--color-paper-100); color: var(--color-ink-500);
+                 display: grid; place-items: center; }
+  .ti-chtab.on { color: #fff; border-color: transparent; }
+  /* Active chip fills with the channel colour, so the glyph must flip to white
+     — otherwise the icon's inline channel colour renders it invisible on its
+     own background (a filled Instagram chip showed only the count). Targeting
+     the <svg> directly sets its currentColor, overriding the span's inline hue. */
+  .ti-chtab.on svg { color: #fff; }
+  .ti-chtab.on .n { background: rgba(255,255,255,.25); color: #fff; }
+  .ti-chtab.on.ch-all { background: var(--color-ink-900); }
+  .ti-chtab.on.ch-wa  { background: var(--color-wa-deep); }
+  .ti-chtab.on.ch-ig  { background: var(--ch-ig); }
+  .ti-chtab.on.ch-ms  { background: var(--ch-ms); }
+  .ti-chtab.on.ch-tg  { background: var(--ch-tg); }
+  .ti-chtab.on.ch-em  { background: var(--ch-em); }
+
+  /* ── Quick-label toggle pills (chat header). Neutral at rest — the label's
+     colour lives only in the icon — and fill solid with `--ql` while the label
+     is applied to the open conversation (.on, added by JS). No opacity flash. */
+  .ti-qlabel { --ql: var(--color-wa-deep);
+               display: inline-flex; align-items: center; gap: 5px;
+               padding: 3px 9px; border-radius: 999px;
+               font: 700 10.5px/1 'JetBrains Mono', monospace; letter-spacing: .01em;
+               border: 1px solid var(--color-paper-200); background: var(--color-paper-0);
+               color: var(--color-ink-600); cursor: pointer;
+               transition: background .12s ease, color .12s ease, border-color .12s ease; }
+  .ti-qlabel svg { width: 12px; height: 12px; color: var(--ql); transition: color .12s ease; }
+  .ti-qlabel:hover { border-color: var(--ql); color: var(--ql); }
+  .ti-qlabel.on { background: var(--ql); border-color: var(--ql); color: #fff; }
+  .ti-qlabel.on svg { color: #fff; }
+  .ti-qlabel:disabled { cursor: default; opacity: .6; }
+
+  /* ── Omni contact-panel Quick-action buttons (icon over label). */
+  .ti-qa { display: flex; flex-direction: column; align-items: center; gap: 4px;
+           padding: 8px 2px; border: 1px solid var(--color-paper-200); border-radius: 10px;
+           background: var(--color-paper-0); color: var(--color-ink-600); cursor: pointer;
+           font: 600 9.5px/1.1 'JetBrains Mono', monospace; text-transform: uppercase;
+           letter-spacing: .04em; transition: background .12s ease, color .12s ease, border-color .12s ease; }
+  .ti-qa svg { width: 15px; height: 15px; }
+  .ti-qa:hover { background: var(--color-paper-50); color: var(--color-wa-deep); border-color: var(--color-wa-deep); }
+
+  /* ── Segmented Active / Mine / Queue / AI with a sliding thumb. */
+  .ti-seg { position: relative; display: flex; background: var(--color-paper-100);
+            border: 1px solid var(--color-paper-200); border-radius: 11px; padding: 3px; }
+  .ti-seg .ti-seg-thumb { position: absolute; top: 3px; bottom: 3px; left: 3px; width: 60px;
+            background: var(--color-paper-0); border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(11,31,28,.12), 0 0 0 1px rgba(11,31,28,.04);
+            transition: left .22s cubic-bezier(.5,0,.2,1.2), width .22s cubic-bezier(.5,0,.2,1.2); }
+  .ti-seg button { position: relative; z-index: 1; flex: 1; height: 27px; border-radius: 8px;
+            font-size: 11px; font-weight: 600; color: var(--color-ink-500);
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            white-space: nowrap; transition: color .18s; background: none; border: 0; cursor: pointer; }
+  .ti-seg button.on { color: var(--color-ink-900); }
+  .ti-seg button .n { font-size: 8.5px; font-family: 'JetBrains Mono', monospace; font-weight: 700;
+            min-width: 15px; height: 14px; padding: 0 4px; border-radius: 99px;
+            background: rgba(11,31,28,.08); color: var(--color-ink-500); display: grid; place-items: center; transition: .18s; }
+  /* Empty count pills paint as bare coloured dots on first load (before
+     renderCounts() fills or hides them) — that looks like a broken toggle.
+     Hide any pill with no number until the JS injects a real count. */
+  .ti-seg button .n:empty { display: none; }
+  .ti-seg button.on .n { background: var(--color-wa-mint); color: var(--color-wa-deep); }
+  .ti-seg button.seg-ai svg { width: 10px; height: 10px; color: var(--ai-purple); }
+
+  /* ── AI-suggested-reply bar, sits flush on top of the composer. */
+  .ti-aibar { display: flex; align-items: center; gap: 10px;
+            background: linear-gradient(135deg, var(--ai-purple-bg), var(--color-paper-0));
+            border: 1px solid rgba(91,61,138,.25); border-radius: 13px 13px 0 0; border-bottom: none;
+            padding: 9px 13px; }
+  .ti-aibar .spark { width: 26px; height: 26px; border-radius: 9px; background: var(--ai-purple);
+            color: #fff; display: grid; place-items: center; flex: 0 0 auto; }
+  .ti-aibar .spark svg { width: 13px; height: 13px; }
+  .ti-aibar .t { flex: 1; min-width: 0; }
+  .ti-aibar .l { font-size: 9.5px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+            letter-spacing: .06em; color: var(--ai-purple); }
+  .ti-aibar .s { font-size: 12px; color: var(--color-ink-600); white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; margin-top: 1px; }
+  .ti-aibar .use { height: 27px; padding: 0 12px; border-radius: 99px; background: var(--ai-purple);
+            color: #fff; font-size: 11.5px; font-weight: 600; flex: 0 0 auto; border: 0; cursor: pointer; }
+  .ti-aibar .x { color: var(--color-ink-500); flex: 0 0 auto; background: none; border: 0; cursor: pointer; }
+  .ti-aibar .x svg { width: 12px; height: 12px; }
+
+  /* ── Contact-panel channel chips + journey timeline. */
+  .ti-chanrow { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ti-chanchip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
+            border-radius: 99px; border: 1px solid var(--color-paper-200); background: var(--color-paper-0);
+            font-size: 11px; font-weight: 600; color: var(--color-ink-600); }
+  .ti-chanchip svg { width: 12px; height: 12px; }
+  .ti-chanchip.live { border-color: rgba(7,94,84,.3); background: var(--color-wa-mint); color: var(--color-wa-deep); }
+  .ti-jrny { position: relative; padding-left: 17px; }
+  .ti-jrny::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 1.5px; background: var(--color-paper-200); }
+  .ti-jit { position: relative; padding: 5px 0; }
+  .ti-jit::before { content: ""; position: absolute; left: -16px; top: 10px; width: 9px; height: 9px;
+            border-radius: 50%; background: var(--color-paper-0); border: 2px solid var(--color-ink-400); }
+  .ti-jit.hot::before { border-color: var(--color-wa-deep); background: var(--color-wa-mint); }
+  .ti-jit .jt { font-size: 12px; font-weight: 600; }
+  .ti-jit .js { font-size: 10.5px; color: var(--color-ink-500); margin-top: 1px; }
+  .ti-jit .jm { font-size: 9.5px; font-family: 'JetBrains Mono', monospace; color: var(--color-ink-400); margin-top: 1px; }
+
+  /* ── Channel-aware chat tinting — the frame carries data-ch of the open
+        thread; the send button + chat paper follow the channel. Targets the
+        EXISTING hooks (#send-btn, .chat-paper) so no markup change is needed.
+        The !important on #send-btn overrides its inline Tailwind bg utility. */
+  #ti-frame[data-ch="ig"] #send-btn { background: linear-gradient(135deg,#833AB4,#E1306C,#F77737) !important; border-color: transparent !important; }
+  #ti-frame[data-ch="ms"] #send-btn { background: var(--ch-ms) !important; border-color: transparent !important; }
+  #ti-frame[data-ch="tg"] #send-btn { background: var(--ch-tg) !important; border-color: transparent !important; }
+  #ti-frame[data-ch="em"] #send-btn { background: var(--ch-em) !important; border-color: transparent !important; }
+  #ti-frame[data-ch="ig"] .chat-paper { background-color: #F6EDF1; }
+  #ti-frame[data-ch="ms"] .chat-paper { background-color: #EDF2F8; }
+  #ti-frame[data-ch="tg"] .chat-paper { background-color: #EAF2F6; }
+  #ti-frame[data-ch="em"] .chat-paper { background-color: #F3F0E9; }
+
+  /* ── Omni thin dark rail (column 1) — replaces the 200px workspace nav.
+        Every nav link is preserved as an icon button; the teams list lives in
+        a flyout. Dark ink surface + light icons, matching the mockup. ── */
+  .ti-rail-omni { background: var(--color-ink-900); display: flex; flex-direction: column;
+                  align-items: center; padding: 12px 0; gap: 5px; overflow: visible; }
+  .ti-rl-logo { width: 38px; height: 38px; border-radius: 12px; background: var(--color-wa-deep);
+                color: var(--color-paper-0); display: grid; place-items: center; margin-bottom: 6px;
+                flex: 0 0 auto; transition: filter .13s; }
+  .ti-rl-logo svg { width: 19px; height: 19px; }
+  .ti-rl-logo:hover { filter: brightness(1.14); }
+  .ti-rl-channels { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; }
+  .ti-rl-div { width: 26px; border: none; border-top: 1px solid rgba(255,255,255,.12); margin: 5px 0; }
+  .ti-rl-nav { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%;
+               flex: 1 1 auto; overflow-y: auto; overflow-x: visible; min-height: 0; }
+  .ti-rl-nav::-webkit-scrollbar { width: 0; height: 0; }
+  .ti-rl-sp { flex: 0 0 4px; }
+  .ti-rl-btn { position: relative; width: 40px; height: 40px; border-radius: 12px; display: grid;
+               place-items: center; color: #7C948F; transition: .13s; flex: 0 0 auto; border: 0;
+               background: none; cursor: pointer; }
+  .ti-rl-btn svg { width: 18px; height: 18px; }
+  .ti-rl-btn:hover { background: rgba(255,255,255,.08); color: var(--color-paper-0); }
+  .ti-rl-btn.active { background: var(--color-wa-deep); color: var(--color-paper-0); }
+  .ti-rl-btn .ct.b { position: absolute; top: 3px; right: 3px; min-width: 15px; height: 15px; padding: 0 4px;
+                     border-radius: 99px; background: var(--color-accent-coral, #E87A5D); color: #fff;
+                     font-size: 9px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+                     display: grid; place-items: center; line-height: 1; }
+  .ti-rl-btn .ct.b:empty { display: none; }
+  /* Colour-coded channel tabs in the rail (vertical). */
+  .ti-rl-ch { position: relative; width: 40px; height: 40px; border-radius: 12px; display: grid;
+              place-items: center; color: #7C948F; transition: .13s; flex: 0 0 auto; border: 0;
+              background: none; cursor: pointer; font-size: 10px; font-weight: 700;
+              font-family: 'JetBrains Mono', monospace; }
+  .ti-rl-ch svg { width: 17px; height: 17px; }
+  .ti-rl-ch:hover { background: rgba(255,255,255,.08); }
+  .ti-rl-ch.on { background: rgba(255,255,255,.14); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
+  .ti-rl-ch.on.ch-all { color: var(--color-paper-0); }
+  .ti-rl-ch .b { position: absolute; top: 2px; right: 2px; min-width: 14px; height: 14px; padding: 0 3px;
+                 border-radius: 99px; background: var(--color-paper-0); color: var(--color-ink-900);
+                 font-size: 8.5px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+                 display: grid; place-items: center; border: 1.5px solid var(--color-ink-900); line-height: 1; }
+  .ti-rl-avatar { width: 36px; height: 36px; border-radius: 50%; flex: 0 0 auto; margin-top: 2px;
+                  background: linear-gradient(135deg, var(--color-wa-teal), var(--color-wa-deep));
+                  color: var(--color-paper-0); font-size: 11.5px; font-weight: 600; display: grid; place-items: center; }
+  /* Teams flyout — anchored to the right of the rail icon. */
+  .ti-rl-teamswrap { position: relative; width: 40px; display: flex; justify-content: center; }
+  .ti-rl-pop { position: absolute; left: 46px; top: 0; width: 200px; background: var(--color-paper-0);
+               border: 1px solid var(--color-paper-200); border-radius: 12px;
+               box-shadow: 0 12px 30px -10px rgba(11,31,28,.30); padding: 8px; z-index: 70; text-align: left; }
+  .ti-rl-pop .team-nav-btn { width: 100%; }
+
+/* === user-team-CHAT — small-screen layout (scoped to #tc-frame) =======
+   Team chat reuses the .ti-frame grid but its columns mean something
+   DIFFERENT from Team inbox:
+     Col1 (aside:first-child)    = nav + CHANNEL list  → the primary picker
+     Col2 (aside:nth-child(2))   = members rail         → secondary (Col1 also
+                                                           links to /members)
+     Col3 (main)                 = chat stream          → opens over the picker
+   The shared .ti-frame phone/tablet rules assume Col2 is the home list — true
+   for the inbox (its queue), but here that hid the channel picker and showed
+   the members rail as the whole screen, and nothing revealed the chat on tap
+   ("not responsive, clicking does nothing"). Re-map for #tc-frame only: the
+   channel list is the home screen, the chat opens full-screen (JS toggles
+   .mobile-thread-open), and a back button returns to the list. */
+  @media (max-width: 1023.98px) {
+    /* HOME SCREEN = channels stacked above the member list, scrolling as one
+       page. The members rail used to be display:none here, which left the phone
+       with a channel picker and no way to see or reach anybody — the whole point
+       of team chat. Both asides now stack in the single column; the frame itself
+       scrolls, so each section sizes to its content instead of fighting over a
+       fixed 100vh split. */
+    #tc-frame {
+      grid-template-columns: minmax(0, 1fr) !important;
+      grid-auto-rows: min-content;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #tc-frame > .ti-col { min-width: 0; max-width: 100vw; height: auto; }
+    #tc-frame > aside:first-child         { display: flex !important; width: 100%; }
+    #tc-frame > aside.ti-col:nth-child(2) { display: flex !important; width: 100%; border-top: 8px solid var(--color-paper-50); }
+    /* The rail scrolls internally on desktop; on the phone the PAGE scrolls, so
+       release it or the list traps the gesture in a short inner box. */
+    #tc-frame > aside.ti-col:nth-child(2) #tc-members-list { overflow: visible; flex: none; }
+    #tc-frame > main.ti-col               { display: none !important; }  /* chat opens over the home screen */
+
+    /* CHAT OPEN = full screen, page scroll off so the message stream owns it.
+
+       Both asides are listed with their full selectors on purpose. A bare
+       `> aside` scores (1,1,1) and LOSES to the members rule above at (1,2,1),
+       which left the member list on screen with the chat stacked below it
+       instead of replacing it. !important does not break that tie — equal
+       importance is still decided by specificity. */
+    #tc-frame.mobile-thread-open {
+      overflow: hidden;
+      /* The home screen sets grid-auto-rows:min-content so its two stacked
+         sections size to their content. The open chat inherits that unless it
+         is overridden here — and against a min-content row, height:100% has
+         nothing to resolve against, so the panel collapsed to the height of its
+         own header + composer and left the rest of the screen blank. */
+      grid-auto-rows: minmax(0, 1fr);
+    }
+    #tc-frame.mobile-thread-open > aside:first-child,
+    #tc-frame.mobile-thread-open > aside.ti-col:nth-child(2)  { display: none !important; }
+    #tc-frame.mobile-thread-open > main.ti-col {
+      display: flex !important;
+      width: 100%;
+      height: 100%;
+      min-height: 0;        /* let the message stream scroll instead of stretching the row */
+      grid-row: 1;          /* claim the first row — the hidden asides leave none */
+    }
+  }
+
+/* === user-flows-builder — mobile ==============================
+   The builder shell is a horizontal row: [palette 260px][canvas].
+   On a phone that fixed 260px column crushed the canvas down to a
+   useless sliver. Below 768px the palette becomes an overlay DRAWER
+   so the canvas keeps the full width; a translucent backdrop dismisses
+   it, and the JS defaults it CLOSED on phones. The toolbar is tightened
+   so its buttons don't overflow. Desktop/tablet are untouched — every
+   rule below lives inside the phone media query (except the backdrop's
+   default `display:none`, which hides it everywhere but phones). */
+  .flow-palette-backdrop { display: none; }
+  @media (max-width: 767.98px) {
+    /* palette → left overlay drawer, floating above the canvas */
+    .flow-palette {
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: min(300px, 86vw) !important;
+      z-index: 45;
+      box-shadow: 10px 0 30px rgba(11, 31, 28, 0.18);
+    }
+    /* tap-anywhere-else backdrop that closes the drawer */
+    .flow-palette-backdrop {
+      display: block;
+      position: absolute; inset: 0;
+      background: rgba(11, 31, 28, 0.38);
+      z-index: 40;
+    }
+    /* toolbar: tighten so back / name / Test / Save / Publish all fit */
+    .flow-toolbar { padding-left: 10px; padding-right: 10px; gap: 6px; }
+    .flow-toolbar .flow-eyebrow { display: none; }   /* drop "Flow Builder" eyebrow */
+    .flow-toolbar .flow-ai-text  { display: none; }   /* AI button → icon only */
+    .flow-toolbar input {                              /* flow-name field shrinks */
+      width: 40vw !important;
+      max-width: 150px;
+      font-size: 15px;
+    }
+  }
+
+/* === user-chat-index (Quick Send) — mobile ===================
+   Desktop is a 3-column app: [Quick Send filters][Message queues
+   list][thread]. Below xl it already stacks to one column, but the
+   thread pane stacked under the list — so tapping a queue left the
+   reply far below the fold. On phones we make it an app master/detail
+   like the Team Inbox: the Quick Send filters + Message-queues list are
+   the home screen (page scrolls), and opening a queue slides the thread
+   in as a FULL-SCREEN overlay with a back chevron. Every rule is inside
+   the phone media query, so desktop/tablet layouts are untouched. */
+  .chat-mobile-back { display: none; }
+  @media (max-width: 767.98px) {
+    /* let the page flow & scroll instead of a fixed, clipped viewport */
+    .chat-main  { height: auto; min-height: calc(100dvh - 56px); overflow: visible; }
+    .chat-frame { display: block; height: auto; min-height: 0; }
+
+    /* home screen = filters card + queues card, stacked, full width */
+    .chat-frame > .chat-col-nav,
+    .chat-frame > .chat-col-queues {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+      margin-bottom: 12px;
+    }
+    /* the queue list grows with content; the page scrolls (no tiny
+       nested scroller that traps the list in a few hundred px) */
+    .chat-frame > .chat-col-queues #queue-list {
+      flex: none;
+      max-height: none;
+      overflow: visible;
+    }
+
+    /* thread = full-screen overlay, hidden until a queue is opened */
+    .chat-col-thread {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      height: 100dvh;
+      border: 0;
+      border-radius: 0;
+      margin: 0;
+    }
+    .chat-frame.mobile-thread-open > .chat-col-thread { display: flex; }
+
+    /* back chevron only on phones */
+    .chat-mobile-back { display: inline-flex; }
+  }
+
+  /* team nav (column 1) */
+  /* padding was 9px 11px — the rail read as airy once the section captions
+     (TEAMS / SETTINGS / AI / AUTOMATION) were stacked between the groups.
+     7px keeps the row at 30px, still a comfortable pointer target. */
+  .team-nav-btn { display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:10px; font-size:12.5px; color:#3A5A55; cursor:pointer; transition: background .12s; }
+  .team-nav-btn:hover  { background:var(--color-paper-50); }
+  .team-nav-btn.active { background:var(--color-wa-deep); color:var(--color-paper-0); font-weight:600; }
+  .team-nav-btn .dot   { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .team-nav-btn .ct    { margin-left:auto; font-size:10.5px; font-family:'JetBrains Mono', monospace; padding:1px 6px; border-radius:999px; background:var(--color-paper-50); color:#3A5A55; }
+  .team-nav-btn.active .ct { background:rgba(255,255,255,0.18); color:#fff; }
+
+  .ti-conv:hover  { background:var(--color-paper-50); }
+  .ti-conv.active { background:var(--color-paper-0); box-shadow: inset 3px 0 0 var(--color-wa-deep); }
+
+  .chat-paper {
+    background-color: #ECE5DD;
+    background-image:
+      radial-gradient(rgba(11,31,28,0.04) 1px, transparent 1px),
+      radial-gradient(rgba(11,31,28,0.03) 1px, transparent 1px);
+    background-size: 18px 18px, 26px 26px;
+    background-position: 0 0, 9px 13px;
+  }
+  .bubble-in   { background:var(--color-paper-0); border:1px solid var(--color-paper-200); border-radius: 14px 14px 14px 4px; }
+  .bubble-out  { background:var(--color-wa-bubble); border:1px solid #C6E8B5; border-radius: 14px 14px 4px 14px; }
+  .bubble-note { background:#FFF8DB; border:1px solid #F2E2A8; border-radius: 12px; }
+
+  .ti-tab { padding: 6px 11px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color:#3A5A55; white-space: nowrap; }
+  .ti-tab:hover { background:var(--color-paper-50); }
+  .ti-tab.active { background:var(--color-wa-deep); color:var(--color-paper-0); }
+  .ti-tab .badge { background:var(--color-paper-50); color:#3A5A55; padding:1px 5px; border-radius:999px; font-size:9.5px; font-family:'JetBrains Mono', monospace; margin-left:3px; }
+  .ti-tab.active .badge { background:rgba(255,255,255,0.18); color:#fff; }
+
+  .pill          { display:inline-flex; align-items:center; gap:4px; padding:1px 7px; border-radius:999px; font-size:9.5px; font-family:'JetBrains Mono', monospace; text-transform:uppercase; letter-spacing:0.04em; border:1px solid; font-weight:600; }
+  .pill-open     { background:var(--color-wa-mint); color:var(--color-wa-deep); border-color:color-mix(in srgb, var(--color-wa-deep) 25%, transparent); }
+  .pill-pending  { background:#FFF4E0; color:#7B5A14; border-color:rgba(228,165,71,0.35); }
+  .pill-resolved { background:#E0EBF7; color:#13478A; border-color:rgba(19,71,138,0.25); }
+  .pill-snoozed  { background:#F3E9FF; color:#5B3D8A; border-color:rgba(91,61,138,0.25); }
+  .pill-urgent   { background:#FBE9E7; color:#A1431F; border-color:rgba(232,122,93,0.4); }
+
+  .tag { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; font-size:10.5px; font-family:'JetBrains Mono', monospace; border:1px solid; }
+
+  .av-1 { background: linear-gradient(135deg, var(--color-wa-teal), var(--color-wa-deep)); }
+  .av-2 { background: linear-gradient(135deg, #E5A04E, #E87A5D); }
+  .av-3 { background: linear-gradient(135deg, #5B3D8A, #13478A); }
+  .av-4 { background: linear-gradient(135deg, var(--color-wa-green), var(--color-wa-teal)); }
+  .av-5 { background: linear-gradient(135deg, var(--color-ink-500), var(--color-ink-700)); }
+  .av-6 { background: linear-gradient(135deg, #E87A5D, #A1431F); }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(11,31,28,0.18); border-radius: 999px; }
+
+  /* dropdown */
+  .menu { position:absolute; top:calc(100% + 6px); right:0; min-width:200px; background:var(--color-paper-0); border:1px solid var(--color-paper-200); border-radius:10px; box-shadow: 0 8px 24px -10px rgba(11,31,28,0.18); padding:4px; z-index:50; }
+  .menu button { width:100%; text-align:left; padding:7px 10px; border-radius:8px; font-size:12px; display:flex; align-items:center; gap:8px; }
+  .menu button:hover { background:var(--color-paper-50); }
+
+  /* small toast */
+  #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--color-ink-900); color:var(--color-paper-0); padding:8px 14px; border-radius:999px; font-size:12px; font-weight:500; box-shadow: 0 12px 28px -10px rgba(0,0,0,0.4); opacity:0; pointer-events:none; transition: opacity .18s, transform .18s; z-index:60; }
+  #toast.show { opacity:1; transform: translate(-50%, -4px); }
+/* === user-woocommerce-dashboard === */
+/* shop hero search backdrop (subtle grid) */
+  .shop-hero {
+    background:
+      linear-gradient(0deg, rgba(255,255,255,0.6), rgba(255,255,255,0.6)),
+      repeating-linear-gradient(0deg,  rgba(11,31,28,0.05) 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(90deg, rgba(11,31,28,0.05) 0 1px, transparent 1px 22px);
+  }
+  /* product card image area */
+  .prod-img { background: linear-gradient(135deg, var(--color-paper-50) 0%, var(--color-paper-100) 100%); }
+  /* sales-trend cell tints */
+  .delta-up   { color:#0E8A3E; }
+  .delta-down { color:#C56B4F; }
+  /* tabs — WooCommerce purple */
+  .ig-tab { color:#3A5A55; padding:10px 14px; border-radius:10px; font-size:13px; display:flex; align-items:center; gap:10px; transition: background .12s; }
+  .ig-tab:hover { background:#F3ECFA; }
+  .ig-tab.active { background:#7F54B3; color:var(--color-paper-0); font-weight:600; }
+  .ig-tab.active .count { background: rgba(255,255,255,0.18); color:#fff; }
+  .count { background:#F3ECFA; color:#5B3D8A; padding:1px 7px; border-radius:999px; font-size:10px; font-family: 'JetBrains Mono', monospace; margin-left:auto; }
+  /* WooCommerce purple accents */
+  .woo-accent { color:#7F54B3; }
+  .woo-bg     { background:#7F54B3; }
+  .woo-bg:hover { background:#6E47A0; }
+  .woo-tint   { background:#F3ECFA; color:#5B3D8A; border-color:rgba(127,84,179,0.3); }
+
+/* Final third-party form resets. Keep Tom Select's internal search input
+   from inheriting global input borders/backgrounds in themed forms. */
+html .ts-control > input,
+html .ts-control > input[type="text"],
+html .ts-control > input:not([type]) {
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+html[data-theme="dark"] .ts-control > input,
+html[data-theme="dark"] .ts-control > input[type="text"],
+html[data-theme="dark"] .ts-control > input:not([type]) {
+  background: transparent !important;
+  color: #F0EBE0 !important;
+  border: 0 !important;
+}
+html[data-theme="doodle"] .ts-control > input,
+html[data-theme="doodle"] .ts-control > input[type="text"],
+html[data-theme="doodle"] .ts-control > input:not([type]) {
+  background: transparent !important;
+  color: var(--d-ink) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Build-with-AI button — shiny light-green pill with a slice of
+ * emerald that runs around the border like a train. Used on the
+ * /templates/create header (and reusable anywhere else the same
+ * "AI shortcut" treatment fits).
+ *
+ * Layering trick:
+ *   ::before — 200% wide/tall conic gradient that rotates; only a
+ *              ~120° arc is colored so it reads as a moving comet.
+ *   ::after  — inset 2px with the actual fill; sits above ::before
+ *              and masks all but the 2px gap around the edge.
+ *   content  — default z-index, sits above both.
+ * The button must be `position: relative; isolate; overflow-hidden`
+ * (already on the markup) for the stacking context to behave.
+ * ─────────────────────────────────────────────────────────────── */
+.btn-ai-shine {
+  color: var(--color-wa-deep);
+  background: transparent;
+  box-shadow: 0 1px 2px rgba(11,31,28,0.10), 0 0 0 1px rgba(11,31,28,0.04);
+}
+.btn-ai-shine::before {
+  content: "";
+  position: absolute;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  z-index: -2;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 240deg,
+    #16A34A 300deg,
+    #4ADE80 330deg,
+    #BBF7D0 345deg,
+    transparent 360deg
+  );
+  animation: btn-ai-spin 2.4s linear infinite;
+}
+.btn-ai-shine::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 45%, #BBF7D0 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.btn-ai-shine:hover::after {
+  background: linear-gradient(135deg, #D1FAE5 0%, #BBF7D0 45%, #86EFAC 100%);
+}
+@keyframes btn-ai-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-ai-shine::before { animation: none; }
+}
+
+/* ── ADMIN SIDEBAR COLLAPSE ─────────────────────────────────────────
+   Toggle button is #admin-sidebar-toggle; state is persisted in the
+   `wa_admin_sidebar` cookie and rendered onto <html> server-side
+   (see components/layouts/admin.blade.php) so the rail never flashes
+   open on navigation. JS lives in resources/js/admin-sidebar.js. */
+.admin-shell { transition: grid-template-columns .18s ease; }
+
+/* The collapse rail is a DESKTOP-only affordance: it relies on the shell
+   being a CSS grid (md:grid) to narrow to 76px. Below md the sidebar is an
+   off-canvas drawer (flex), so applying the collapsed class there would hide
+   the labels WITHOUT narrowing the width → a broken full-width icon-only
+   drawer. Gate the whole collapse behind md (768px). */
+@media (min-width: 768px) {
+  /* Define the shell columns explicitly rather than relying on the Tailwind
+     arbitrary utility `md:grid-cols-[260px_minmax(0,1fr)]`, which the JIT
+     scanner doesn't always emit (commas/parens in the arbitrary value) —
+     when it's missing the grid has no template and the sidebar layout breaks.
+     Expanded = 260px rail; the collapsed override below narrows it to 76px. */
+  .admin-shell { grid-template-columns: 260px minmax(0, 1fr); }
+  html.admin-sidebar-collapsed .admin-shell { grid-template-columns: 76px minmax(0, 1fr) !important; }
+  /* The <aside> carries a fixed w-[260px] for the mobile drawer; on desktop it
+     must FILL its grid column instead, otherwise it stays 260px wide and the
+     collapse (which only narrows the grid track to 76px) does nothing visually.
+     width:auto + the grid's default stretch makes the rail follow the column. */
+  #admin-sidebar { width: auto !important; }
+
+  /* Collapsed = icons only: drop every textual element */
+  html.admin-sidebar-collapsed #admin-sidebar-root .js-sb-collapse-hide,
+  html.admin-sidebar-collapsed #admin-sidebar-root nav span,
+  html.admin-sidebar-collapsed #admin-sidebar-root [data-admin-chevron],
+  html.admin-sidebar-collapsed #admin-sidebar-root .admin-nav-children { display: none !important; }
+
+  /* Centre the icons once their labels are gone */
+  html.admin-sidebar-collapsed #admin-sidebar-root nav a,
+  html.admin-sidebar-collapsed #admin-sidebar-root nav button[data-admin-toggle],
+  html.admin-sidebar-collapsed #admin-sidebar-root .admin-footer-link,
+  html.admin-sidebar-collapsed #admin-sidebar-root .admin-brand-header {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+  }
+
+  /* Flip the collapse glyph to point "open" when collapsed */
+  html.admin-sidebar-collapsed #admin-sidebar-toggle svg { transform: rotate(180deg); }
+
+  /* Collapsed rail: the 14px nav glyphs look lost in a 76px column —
+     bump icons up so the rail reads as a proper icon nav. */
+  html.admin-sidebar-collapsed #admin-sidebar-root nav a svg,
+  html.admin-sidebar-collapsed #admin-sidebar-root nav button[data-admin-toggle] svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  html.admin-sidebar-collapsed #admin-sidebar-root nav a,
+  html.admin-sidebar-collapsed #admin-sidebar-root nav button[data-admin-toggle] {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  html.admin-sidebar-collapsed #admin-sidebar-root .admin-footer-link svg { width: 18px !important; height: 18px !important; }
+  html.admin-sidebar-collapsed #admin-sidebar-toggle svg { width: 18px !important; height: 18px !important; }
+}
+
+/* Sticky save bar for long admin forms — keeps the primary action
+   reachable without scrolling back to the top action row. Visual
+   styling uses existing utility classes on the element itself; only
+   the sticky positioning lives here. */
+.admin-save-bar { position: sticky; bottom: 16px; z-index: 20; }
+
+/* ============================================================================
+   Sales Pipeline / Deals Kanban board (/deals)
+   Component classes for the drag-drop board + slide-over detail panel. Uses
+   the paper/wa-deep design tokens. Structural classes (.dl-card, .dl-col,
+   [data-drop]) are targeted by resources/js/charts/user-deals-board.js.
+   ============================================================================ */
+.dl-board { display: flex; gap: 12px; align-items: flex-start; overflow-x: auto; padding: 2px 2px 16px; }
+
+/* Column — a paper-50 tray with its own internal scroll (Trello-style). */
+.dl-col {
+    flex: 0 0 300px; max-width: 300px;
+    display: flex; flex-direction: column;
+    background: var(--color-paper-50, var(--color-paper-50));
+    border: 1px solid var(--color-paper-200, var(--color-paper-200));
+    border-radius: 16px;
+    max-height: calc(100vh - 250px);
+    transition: outline-color .15s ease, background .15s ease;
+}
+.dl-col-won  { background: #EAF7E6; border-color: #BFE6C8; }
+.dl-col-lost { background: #FCF0F0; border-color: #F0D4D4; }
+.dl-col.dragover { outline: 2px dashed var(--color-wa-green, var(--color-wa-green)); outline-offset: -3px; background: var(--color-wa-bubble, var(--color-wa-bubble)); }
+.dl-col-head { padding: 11px 13px 9px; display: flex; align-items: center; justify-content: space-between; }
+.dl-col-body { flex: 1 1 auto; overflow-y: auto; padding: 2px 10px 10px; display: flex; flex-direction: column; gap: 10px; min-height: 48px; }
+.dl-col-body::-webkit-scrollbar { width: 6px; }
+.dl-col-body::-webkit-scrollbar-thumb { background: var(--color-paper-300, #D4CCB6); border-radius: 4px; }
+.dl-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+.dl-count { font-family: var(--font-mono); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; background: var(--color-paper-100, var(--color-paper-100)); color: var(--color-ink-600, #3A5A55); }
+
+/* Card — lifts on hover, tilts while dragging (matches the design mock). */
+.dl-card {
+    background: var(--color-paper-0, var(--color-paper-0));
+    border: 1px solid var(--color-paper-200, var(--color-paper-200));
+    border-radius: 14px; padding: 12px; cursor: grab; user-select: none;
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.dl-card:hover { transform: translateY(-2px); box-shadow: 0 12px 26px -16px color-mix(in srgb, var(--color-wa-deep) 30%, transparent); border-color: var(--color-wa-deep, var(--color-wa-deep)); }
+.dl-card:active { cursor: grabbing; transform: scale(1.02) rotate(-.5deg); }
+.dl-card.dragging { opacity: .4; }
+.dl-card-won { border-color: #BFE6C8; }
+
+.dl-chip { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; }
+.dl-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+.dl-srcicon { width: 14px; height: 14px; border-radius: 5px; display: grid; place-items: center; color: #fff; flex-shrink: 0; }
+.dl-avatar { width: 22px; height: 22px; border-radius: 999px; display: grid; place-items: center; font-size: 9px; font-weight: 600; color: #fff; flex-shrink: 0; }
+.dl-amount { font-family: var(--font-serif); font-size: 20px; line-height: 1; color: var(--color-wa-deep, var(--color-wa-deep)); font-variant-numeric: tabular-nums; }
+.dl-progress { height: 4px; border-radius: 999px; background: var(--color-paper-100, var(--color-paper-100)); overflow: hidden; }
+.dl-progress > span { display: block; height: 100%; border-radius: 999px; }
+
+.dl-kpi { background: var(--color-paper-0, var(--color-paper-0)); border: 1px solid var(--color-paper-200, var(--color-paper-200)); border-radius: 16px; padding: 15px 16px; }
+.dl-kpi .l { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--color-ink-500, var(--color-ink-500)); }
+.dl-kpi .v { font-family: var(--font-serif); font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--color-ink-900, var(--color-ink-900)); margin-top: 6px; }
+.dl-kpi .v.is-accent { color: var(--color-wa-deep, var(--color-wa-deep)); }
+
+.dl-pulse { animation: dlPulse 1.6s ease-in-out infinite; }
+@keyframes dlPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(1.35); } }
+
+.dl-input, .dl-field {
+    border: 1px solid var(--color-paper-200, var(--color-paper-200)); border-radius: 10px; padding: 8px 11px;
+    background: var(--color-paper-0, var(--color-paper-0)); font-size: 13px; color: var(--color-ink-900, var(--color-ink-900));
+}
+.dl-field { width: 100%; }
+.dl-input:focus, .dl-field:focus { outline: none; border-color: var(--color-wa-deep, var(--color-wa-deep)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-wa-deep) 10%, transparent); }
+
+.dl-btn { border-radius: 10px; padding: 9px 15px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+.dl-btn-primary { background: var(--color-wa-deep, var(--color-wa-deep)); color: #FFFFFF; }
+.dl-btn-primary:hover { background: var(--color-wa-teal, var(--color-wa-teal)); }
+.dl-btn-ghost { background: var(--color-paper-0, var(--color-paper-0)); border-color: var(--color-paper-200, var(--color-paper-200)); color: var(--color-ink-900, var(--color-ink-900)); }
+
+.dl-modal-backdrop { position: fixed; inset: 0; background: rgba(11, 31, 28, .45); display: none; align-items: center; justify-content: center; z-index: 60; padding: 18px; }
+.dl-modal-backdrop.open { display: flex; }
+.dl-modal { background: var(--color-paper-0, var(--color-paper-0)); border-radius: 18px; width: 100%; max-width: 460px; padding: 22px; box-shadow: 0 24px 60px -20px color-mix(in srgb, var(--color-wa-deep) 40%, transparent); }
+
+/* Slide-over detail panel */
+.dl-panel-backdrop { position: fixed; inset: 0; background: rgba(11, 31, 28, .45); display: none; z-index: 65; }
+.dl-panel-backdrop.open { display: block; }
+.dl-panel {
+    position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 460px;
+    background: var(--color-paper-0, var(--color-paper-0)); box-shadow: -20px 0 60px -24px color-mix(in srgb, var(--color-wa-deep) 40%, transparent);
+    transform: translateX(100%); transition: transform .22s ease; overflow-y: auto;
+}
+.dl-panel-backdrop.open .dl-panel { transform: translateX(0); }
+.dl-act { border-left: 2px solid var(--color-paper-200, var(--color-paper-200)); padding: 0 0 14px 14px; position: relative; }
+.dl-act::before { content: ''; position: absolute; left: -5px; top: 3px; width: 8px; height: 8px; border-radius: 50%; background: var(--color-wa-deep, var(--color-wa-deep)); }
+.dl-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+.dl-badge-open { background: #EFF6FF; color: #1D4ED8; }
+.dl-badge-won { background: var(--color-wa-mint, var(--color-wa-mint)); color: var(--color-wa-deep, var(--color-wa-deep)); }
+.dl-badge-lost { background: #FEF2F2; color: #B91C1C; }
+
+/* Deal detail panel — CRM record view (sticky header + sectioned body). */
+.dl-phead { position: sticky; top: 0; z-index: 5; background: var(--color-paper-0, var(--color-paper-0)); border-bottom: 1px solid var(--color-paper-200, var(--color-paper-200)); padding: 16px 20px 14px; }
+.dl-pbody { padding: 18px 20px 30px; }
+.dl-eyebrow { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .14em; color: var(--color-ink-500, var(--color-ink-500)); margin-bottom: 9px; }
+.dl-title-input { font-family: var(--font-serif); font-size: 21px; line-height: 1.15; color: var(--color-ink-900, var(--color-ink-900)); border: 1px solid transparent; border-radius: 8px; background: transparent; width: 100%; padding: 2px 7px; margin-left: -7px; }
+.dl-title-input:hover { background: var(--color-paper-50, var(--color-paper-50)); }
+.dl-title-input:focus { outline: none; background: #FFFFFF; border-color: var(--color-wa-deep, var(--color-wa-deep)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-wa-deep) 10%, transparent); }
+.dl-amount-lg { font-family: var(--font-serif); font-size: 24px; line-height: 1; color: var(--color-wa-deep, var(--color-wa-deep)); font-variant-numeric: tabular-nums; }
+.dl-iconbtn { width: 32px; height: 32px; border-radius: 999px; display: grid; place-items: center; color: var(--color-ink-400, #9AA8A4); cursor: pointer; }
+.dl-iconbtn:hover { background: var(--color-paper-100, var(--color-paper-100)); color: var(--color-ink-900, var(--color-ink-900)); }
+.dl-iconbtn-danger:hover { background: #FEE2E2; color: #DC2626; }
+
+html[data-theme="dark"] .dl-phead { background: #0F2723; border-color: #2D5A53; }
+html[data-theme="dark"] .dl-title-input { color: #F0EBE0; }
+html[data-theme="dark"] .dl-title-input:hover { background: #15302C; }
+html[data-theme="dark"] .dl-title-input:focus { background: #13312D; }
+html[data-theme="dark"] .dl-amount-lg { color: var(--wa-brand-text); }
+html[data-theme="dark"] .dl-iconbtn:hover { background: #1F4540; color: #F0EBE0; }
+html[data-theme="dark"] .dl-iconbtn-danger:hover { background: #3A1D1D; color: #FCA5A5; }
+
+/* Dark mode — this app themes via html[data-theme="dark"] (NOT a .dark class)
+   and remaps the utility text classes to light with !important. My custom
+   .dl-* surfaces use raw vars that DON'T flip, so without these overrides the
+   cards stayed light while their text went white (white-on-white). Match the
+   app's dark palette (#0F2723 tray, #13312D card, #2D5A53 hairline). */
+html[data-theme="dark"] .dl-col           { background: #0F2723; border-color: #2D5A53; }
+html[data-theme="dark"] .dl-col-won       { background: #11352A; border-color: #1F5A3E; }
+html[data-theme="dark"] .dl-col-lost      { background: #2A1D1D; border-color: #5A2D2D; }
+html[data-theme="dark"] .dl-col.dragover  { background: #15352B; }
+html[data-theme="dark"] .dl-card          { background: #13312D; border-color: #2D5A53; }
+html[data-theme="dark"] .dl-card:hover    { border-color: var(--wa-brand-text); }
+html[data-theme="dark"] .dl-card-won      { border-color: #1F5A3E; }
+html[data-theme="dark"] .dl-count         { background: #1F4540; color: #C9D2CE; }
+html[data-theme="dark"] .dl-progress      { background: #1F4540; }
+html[data-theme="dark"] .dl-amount        { color: var(--wa-brand-text); }
+html[data-theme="dark"] .dl-kpi           { background: #13312D; border-color: #2D5A53; }
+html[data-theme="dark"] .dl-kpi .v        { color: #FBFAF6; }
+html[data-theme="dark"] .dl-kpi .v.is-accent { color: var(--wa-brand-text); }
+html[data-theme="dark"] .dl-input,
+html[data-theme="dark"] .dl-field         { background: #13312D; border-color: #2D5A53; color: #F0EBE0; }
+html[data-theme="dark"] .dl-btn-ghost     { background: #13312D; border-color: #2D5A53; color: #F0EBE0; }
+html[data-theme="dark"] .dl-modal,
+html[data-theme="dark"] .dl-panel         { background: #0F2723; color: #F0EBE0; }
+html[data-theme="dark"] .dl-act           { border-color: #2D5A53; }
+html[data-theme="dark"] .dl-badge-open    { background: #14253A; color: #93C5FD; }
+html[data-theme="dark"] .dl-badge-lost    { background: #3A1D1D; color: #FCA5A5; }
+

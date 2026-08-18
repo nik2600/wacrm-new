@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:#FBFAF6;color:#0B1F1C;padding:18px 22px;line-height:1.5;font-size:13px}
+    .head{display:flex;justify-content:space-between;align-items:start;margin-bottom:14px}
+    h1{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:500;letter-spacing:-0.01em}
+    .label{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#6B807C;margin-bottom:6px}
+    .small{font-size:11.5px;color:#6B807C}
+    .screen{display:none}
+    .screen.active{display:block}
+
+    .total{font-size:13px;color:#0B1F1C;margin-bottom:14px}
+    .total b{font-family:'JetBrains Mono',monospace;color:#075E54}
+
+    /* Products table */
+    .ptable{width:100%;border-collapse:collapse;background:#fff;border:1px solid #EAE6DC;border-radius:10px;overflow:hidden;font-size:12px}
+    .ptable th{background:#F5F2EA;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#6B807C;padding:9px 10px;font-weight:600}
+    .ptable td{padding:9px 10px;border-top:1px solid #EAE6DC;vertical-align:middle}
+    .ptable .num{width:32px;color:#6B807C;font-family:'JetBrains Mono',monospace}
+    .ptable .thumb{width:36px;height:36px;border-radius:6px;background:#F5F2EA;display:inline-grid;place-items:center;overflow:hidden;color:#6B807C}
+    .ptable .thumb img{width:100%;height:100%;object-fit:cover}
+    .ptable .price{font-family:'JetBrains Mono',monospace;color:#075E54}
+    .ptable .active{font-family:'JetBrains Mono',monospace;color:#0B1F1C}
+    .ptable .active.n{color:#E87A5D}
+    .empty{padding:34px;text-align:center;color:#6B807C;background:#fff;border:1px dashed #E5DFD0;border-radius:10px}
+    .empty h3{font-family:'Fraunces',serif;font-size:18px;color:#0B1F1C;margin-bottom:6px}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9999px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;font-family:inherit}
+    .btn-primary{background:#075E54;color:#fff}
+    .btn-primary:hover{background:#094B45}
+    .btn-success{background:#10A37F;color:#fff}
+    .btn-danger{background:#E87A5D;color:#fff}
+    .btn-ghost{background:transparent;color:#0B1F1C;border:1px solid #E5DFD0}
+    .btn-ghost:hover{background:#F5F2EA}
+    .btn[disabled]{opacity:.5;cursor:not-allowed}
+
+    /* Footer bar */
+    .footbar{position:fixed;left:22px;right:22px;bottom:18px;display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid #EAE6DC;background:#FBFAF6}
+    .footbar .powered{margin:0 auto;font-size:11px;color:#6B807C}
+
+    /* Inputs */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+    .form-row.single{grid-template-columns:1fr}
+    label.field{display:block}
+    label.field .lbl{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:9999px;color:#fff;font-size:11.5px;font-weight:600;margin-bottom:6px;width:fit-content}
+    .pill-orange{background:#E87A5D}
+    .pill-blue{background:#1E73BE}
+    .pill-amber{background:#F4A261}
+    .pill-green{background:#10A37F}
+    .pill-grey{background:#6B807C}
+    input.txt, select.txt, textarea.txt{width:100%;padding:9px 11px;border:1px solid #E5DFD0;border-radius:8px;font-size:13px;background:#fff;font-family:inherit;color:#0B1F1C}
+    input.txt:focus, select.txt:focus, textarea.txt:focus{outline:none;border-color:#075E54;box-shadow:0 0 0 3px rgba(7,94,84,0.12)}
+    textarea.txt{min-height:90px;resize:vertical}
+    .counter{font-size:10.5px;color:#6B807C;text-align:right;margin-top:2px;font-family:'JetBrains Mono',monospace}
+    .row-h{display:flex;gap:10px;align-items:end}
+    .row-h > div{flex:1}
+    .logo-tile{width:64px;height:64px;border-radius:10px;background:#10A37F;color:#fff;display:grid;place-items:center;font-family:'Fraunces',serif;font-size:24px;flex-shrink:0}
+    .checkbox-row{display:flex;gap:18px;margin-top:6px}
+    .checkbox-row label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+
+    /* Step 1 "Total Products: 0" warning state */
+    .warn{background:#FCE7DE;border:1px solid #E87A5D;padding:10px 14px;border-radius:10px;font-size:12px;color:#A1431F;margin-bottom:14px}
+    .warn-info{background:#E8F4F1;border:1px solid #075E54;padding:10px 14px;border-radius:10px;font-size:12px;color:#075E54;margin-bottom:14px;display:flex;gap:8px;align-items:start}
+
+    /* Demo confirm modal */
+    .demo-confirm{text-align:center;padding:40px 20px}
+    .demo-confirm h2{font-family:'Fraunces',serif;font-size:22px;margin-bottom:14px;color:#0B1F1C}
+
+    /* Published modal */
+    .pub{text-align:center;padding:30px 20px}
+    .pub h2{font-family:'Fraunces',serif;font-size:24px;margin-bottom:6px}
+    .pub p{color:#6B807C;font-size:13px;margin-bottom:24px}
+    .pub-url{background:#fff;border:1px solid #EAE6DC;border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#075E54;margin-bottom:18px;word-break:break-all}
+    .pub-actions{display:flex;flex-direction:column;gap:10px;max-width:240px;margin:0 auto}
+    .pub-actions a, .pub-actions button{justify-content:center;text-decoration:none}
+
+    /* Toast / loader */
+    .loader{display:inline-block;width:14px;height:14px;border:2px solid #E5DFD0;border-top-color:#075E54;border-radius:50%;animation:spin .6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Status badge for API key */
+    .status-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:9999px;font-family:'JetBrains Mono',monospace;font-size:10.5px}
+    .status-pill.ok{background:#D5F0EA;color:#075E54}
+    .status-pill.err{background:#FCE7DE;color:#A1431F}
+  </style>
+</head>
+<body>
+
+<!-- ═════════════ Screen 1: Products review ═════════════ -->
+<div class="screen active" id="screen-products">
+  <div class="head">
+    <h1>WhatsApp Shop</h1>
+    <span id="api-status" class="status-pill err">checking…</span>
+  </div>
+
+  <div id="totalBox" class="total">Total Products: <b id="totalCount">0</b></div>
+  <div id="messageBox"></div>
+
+  <div id="productList">
+    <div class="empty">
+      <div class="loader" style="margin:0 auto 10px"></div>
+      <div>Reading sheet…</div>
+    </div>
+  </div>
+
+  <div class="footbar">
+    <button class="btn btn-success" onclick="confirmDemo()">⊞ Start from demo</button>
+    <span class="powered">Powered by <b>Wasnap</b></span>
+    <button class="btn btn-danger" onclick="refreshSheet()">↻ Refresh</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="goToConfig()" disabled>Next</button>
+  </div>
+</div>
+
+<!-- ═════════════ Screen 2: Demo confirm ═════════════ -->
+<div class="screen" id="screen-demo-confirm">
+  <div class="demo-confirm">
+    <h2>You will lose all data in your current sheet.</h2>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-success" onclick="runDemo()">Agree</button>
+      <button class="btn btn-danger" onclick="goToProducts()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ Screen 3: Shop config ═════════════ -->
+<div class="screen" id="screen-config">
+  <div class="head">
+    <h1>WhatsApp Shop</h1>
+  </div>
+
+  <div class="form-row">
+    <label class="field">
+      <span class="lbl pill-orange">🛒 Shop Name:</span>
+      <input type="text" class="txt" id="shop_name" maxlength="50" oninput="updateCount('shop_name', 50)">
+      <div class="counter"><span id="shop_name_count">0</span>/50</div>
+    </label>
+
+    <div style="display:flex;gap:10px;align-items:end">
+      <div class="logo-tile" id="logo-tile">📷</div>
+      <button class="btn btn-primary" style="height:36px" onclick="alert('Logo upload happens after publish — open your shop on Wasnap to upload a custom logo.')">Change Logo</button>
+    </div>
+  </div>
+
+  <label class="field" style="margin-bottom:14px">
+    <span class="lbl pill-blue">≡ Shop Description:</span>
+    <textarea class="txt" id="description" maxlength="250" oninput="updateCount('description', 250)"></textarea>
+    <div class="counter"><span id="description_count">0</span>/250</div>
+  </label>
+
+  <div class="form-row">
+    <label class="field">
+      <span class="lbl pill-amber">$ Currency:</span>
+      <select class="txt" id="currency">
+        <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option>
+        <option>AED</option><option>KES</option><option>NGN</option><option>ZAR</option>
+        <option>BRL</option><option>MXN</option><option>CRC</option><option>PHP</option>
+        <option>IDR</option><option>SGD</option><option>MYR</option><option>THB</option>
+        <option>VND</option><option>EGP</option><option>PKR</option><option>BDT</option><option>LKR</option>
+      </select>
+    </label>
+    <label class="field">
+      <span class="lbl pill-green">🟢 WhatsApp Number:</span>
+      <input type="text" class="txt" id="wa_number" placeholder="+91 98765 43210">
+    </label>
+  </div>
+
+  <div class="form-row single">
+    <label class="field">
+      <span class="lbl pill-grey">Update existing shop?</span>
+      <div style="display:flex;gap:8px;align-items:stretch">
+        <select class="txt" id="shop_id" style="flex:1">
+          <option value="">— Create a new shop —</option>
+        </select>
+        <button type="button" class="btn btn-ghost" style="padding:0 14px" onclick="loadExistingShops()" title="Reload shop list">↻</button>
+      </div>
+      <div id="shop-list-hint" class="counter" style="text-align:left"></div>
+    </label>
+  </div>
+
+  <div class="footbar">
+    <button class="btn btn-danger" onclick="goToProducts()">Back</button>
+    <span class="powered">Powered by <b>Wasnap</b></span>
+    <button class="btn btn-success" id="publishBtn" onclick="publishNow()">✎ Publish</button>
+  </div>
+</div>
+
+<!-- ═════════════ Screen 4: Publishing ═════════════ -->
+<div class="screen" id="screen-publishing">
+  <div class="pub">
+    <div class="loader" style="margin:40px auto 18px;width:32px;height:32px;border-width:3px"></div>
+    <h2>Publishing your shop…</h2>
+    <p id="pub-log">Uploading <span id="pub-count">0</span> products</p>
+  </div>
+</div>
+
+<!-- ═════════════ Screen 5: Published ═════════════ -->
+<div class="screen" id="screen-published">
+  <div class="pub">
+    <h2>Published successfully</h2>
+    <p id="published-summary">Created · Updated</p>
+    <div class="pub-url" id="pub-url">—</div>
+    <div class="pub-actions">
+      <a href="#" class="btn btn-primary" id="visit-shop" target="_blank">🛒 Visit Shop</a>
+      <a href="#" class="btn btn-success" id="share-shop" target="_blank">↗ Share Shop</a>
+    </div>
+    <p style="margin-top:24px;font-size:11px">Powered by <b>Wasnap</b></p>
+  </div>
+</div>
+
+<!-- ═════════════ Screen 6: API key error ═════════════ -->
+<div class="screen" id="screen-no-key">
+  <div class="pub">
+    <h2 style="color:#E87A5D">No API key</h2>
+    <p>You need a Wasnap API key to publish. Generate one at:</p>
+    <div class="pub-url" id="key-url">…</div>
+    <div class="pub-actions">
+      <a href="#" class="btn btn-primary" id="open-account" target="_blank">Open Wasnap account</a>
+      <button class="btn btn-ghost" onclick="window.close ? window.close() : null">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────
+const MODE = '<?= mode ?>';
+let SHEET_DATA = { products: [], headerOk: false };
+let API_STATUS = null;
+let EXISTING_SHOPS = [];
+
+// ─── Screen routing ───────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goToProducts() { show('screen-products'); }
+function goToConfig()   {
+  // Pre-fill shop name from spreadsheet name if blank
+  const nameField = document.getElementById('shop_name');
+  if (!nameField.value && SHEET_DATA.sheet_name) {
+    nameField.value = SHEET_DATA.sheet_name;
+    updateCount('shop_name', 50);
+  }
+  show('screen-config');
+  // Lazy-load the existing shops dropdown right when the user enters
+  // this screen — fresh data every time, no stale dropdown if they
+  // published one in another tab.
+  loadExistingShops();
+}
+function confirmDemo()  { show('screen-demo-confirm'); }
+
+// ─── Init ─────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  checkApiKey();
+  refreshSheet();
+});
+
+function checkApiKey() {
+  google.script.run.withSuccessHandler(s => {
+    API_STATUS = s;
+    const pill = document.getElementById('api-status');
+    document.getElementById('key-url').textContent = s.wasnap_base + '/account';
+    document.getElementById('open-account').href = s.wasnap_base + '/sheets-addon';
+    if (s.has_key) {
+      pill.className = 'status-pill ok';
+      pill.textContent = '✓ key …' + s.suffix;
+    } else {
+      pill.className = 'status-pill err';
+      pill.textContent = '! no key';
+      show('screen-no-key');
+    }
+  }).apiKeyStatus();
+}
+
+function loadExistingShops() {
+  const sel = document.getElementById('shop_id');
+  const hint = document.getElementById('shop-list-hint');
+  sel.innerHTML = '<option value="">⏳ Loading existing shops…</option>';
+  hint.textContent = '';
+  hint.style.color = '#6B807C';
+
+  google.script.run
+    .withSuccessHandler(r => {
+      EXISTING_SHOPS = r.shops || [];
+      sel.innerHTML = '<option value="">— Create a new shop —</option>';
+      if (EXISTING_SHOPS.length === 0) {
+        hint.textContent = 'No existing shops in this workspace yet — first publish creates one.';
+      } else {
+        EXISTING_SHOPS.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = (s.shop_name || ('Shop #' + s.id))
+            + '  ·  /s/' + s.slug
+            + (s.product_count ? '  ·  ' + s.product_count + ' products' : '');
+          sel.appendChild(opt);
+        });
+        hint.textContent = EXISTING_SHOPS.length + ' shop' + (EXISTING_SHOPS.length === 1 ? '' : 's')
+          + ' found · pick one to overwrite or leave on "Create a new shop"';
+      }
+    })
+    .withFailureHandler(e => {
+      sel.innerHTML = '<option value="">— Create a new shop —</option>';
+      hint.style.color = '#E87A5D';
+      hint.textContent = '⚠ Could not load existing shops: ' + (e.message || e)
+        + ' · check that ' + (API_STATUS?.wasnap_base || 'Wasnap') + ' is reachable from Apps Script.';
+    })
+    .apiShops();
+}
+
+function refreshSheet() {
+  document.getElementById('productList').innerHTML = '<div class="empty"><div class="loader" style="margin:0 auto 10px"></div><div>Reading sheet…</div></div>';
+  google.script.run.withSuccessHandler(renderProducts).withFailureHandler(e => {
+    document.getElementById('productList').innerHTML = '<div class="empty"><h3>Couldn\'t read the sheet</h3><div>' + (e.message || e) + '</div></div>';
+  }).readSheet();
+}
+
+function renderProducts(data) {
+  SHEET_DATA = data;
+  document.getElementById('totalCount').textContent = data.rowCount || 0;
+  const list = document.getElementById('productList');
+  const msg = document.getElementById('messageBox');
+  msg.innerHTML = '';
+
+  if (!data.headerOk) {
+    msg.innerHTML = '<div class="warn">' + (data.message || 'Sheet headers are missing.') + '</div>';
+    list.innerHTML = '<div class="empty"><h3>Please input products or click "Start from demo"</h3></div>';
+    document.getElementById('nextBtn').disabled = true;
+    return;
+  }
+  if (data.products.length === 0) {
+    msg.innerHTML = '<div class="warn-info">Headers look good. Add product rows below them or click "Start from demo".</div>';
+    list.innerHTML = '<div class="empty"><h3>No products yet</h3><div>Type rows into your sheet, then click "Refresh".</div></div>';
+    document.getElementById('nextBtn').disabled = true;
+    return;
+  }
+
+  let html = '<table class="ptable"><thead><tr>'
+    + '<th>No</th><th>Product Name</th><th>Product Category</th><th>Product Description</th><th>Image</th><th>Price</th><th>Active(Y/N)</th>'
+    + '</tr></thead><tbody>';
+  data.products.forEach(p => {
+    html += '<tr>'
+      + '<td class="num">' + p.no + '</td>'
+      + '<td>' + esc(p.name) + '</td>'
+      + '<td>' + esc(p.category || '—') + '</td>'
+      + '<td>' + esc(p.description || '—') + '</td>'
+      + '<td><span class="thumb">' + (p.image_url ? '<img src="' + esc(p.image_url) + '" onerror="this.outerHTML=\'📦\'">' : '📦') + '</span></td>'
+      + '<td class="price">' + p.price + '</td>'
+      + '<td class="active ' + (p.active === 'N' ? 'n' : '') + '">' + p.active + '</td>'
+      + '</tr>';
+  });
+  html += '</tbody></table>';
+  list.innerHTML = html;
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function runDemo() {
+  show('screen-products');
+  document.getElementById('productList').innerHTML = '<div class="empty"><div class="loader" style="margin:0 auto 10px"></div><div>Loading demo products…</div></div>';
+  google.script.run.withSuccessHandler(renderProducts).withFailureHandler(e => {
+    document.getElementById('productList').innerHTML = '<div class="empty"><h3>Demo failed</h3><div>' + (e.message || e) + '</div></div>';
+  }).populateDemo();
+}
+
+function updateCount(id, max) {
+  const v = document.getElementById(id).value;
+  document.getElementById(id + '_count').textContent = v.length;
+}
+
+function publishNow() {
+  const btn = document.getElementById('publishBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Publishing…';
+
+  const cfg = {
+    shop_id:     document.getElementById('shop_id').value || null,
+    shop_name:   document.getElementById('shop_name').value.trim(),
+    description: document.getElementById('description').value.trim(),
+    currency:    document.getElementById('currency').value,
+    wa_number:   document.getElementById('wa_number').value.trim(),
+    theme_key:   'aurora',
+  };
+  if (!cfg.shop_name) {
+    btn.disabled = false;
+    btn.innerHTML = '✎ Publish';
+    alert('Shop name is required.');
+    return;
+  }
+
+  document.getElementById('pub-count').textContent = SHEET_DATA.products.length;
+  show('screen-publishing');
+
+  google.script.run
+    .withSuccessHandler(onPublished)
+    .withFailureHandler(e => {
+      show('screen-config');
+      btn.disabled = false;
+      btn.innerHTML = '✎ Publish';
+      alert('Publish failed: ' + (e.message || e));
+    })
+    .publishShop(cfg);
+}
+
+function onPublished(res) {
+  show('screen-published');
+  document.getElementById('published-summary').innerHTML =
+    res.products.created + ' new · ' + res.products.updated + ' updated · <b>' + res.products.total + ' products live</b>';
+  document.getElementById('pub-url').textContent = res.shop.public_url;
+  document.getElementById('visit-shop').href = res.shop.public_url;
+  const shareText = 'Check out my shop: ' + res.shop.shop_name + '\n' + res.shop.public_url;
+  document.getElementById('share-shop').href = 'https://wa.me/?text=' + encodeURIComponent(shareText);
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#FBFAF6;color:#0B1F1C;padding:22px;font-size:13px;line-height:1.5}
+    h1{font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:500;margin-bottom:14px}
+    .small{font-size:11.5px;color:#6B807C;line-height:1.55}
+    .card{background:#fff;border:1px solid #EAE6DC;border-radius:12px;padding:14px;margin-bottom:14px}
+    .row{display:flex;gap:8px;align-items:center}
+    input.txt{flex:1;padding:9px 11px;border:1px solid #E5DFD0;border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;background:#FBFAF6;color:#0B1F1C}
+    input.txt:focus{outline:none;border-color:#075E54;box-shadow:0 0 0 3px rgba(7,94,84,.12)}
+    .btn{padding:9px 18px;border-radius:9999px;border:none;cursor:pointer;font-weight:600;font-size:12.5px;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+    .btn-primary{background:#075E54;color:#fff}
+    .btn-primary:hover{background:#094B45}
+    .btn-ghost{background:transparent;color:#0B1F1C;border:1px solid #E5DFD0}
+    .btn-danger{background:#E87A5D;color:#fff}
+    .status{display:inline-flex;gap:6px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:4px 10px;border-radius:9999px}
+    .status.ok{background:#D5F0EA;color:#075E54}
+    .status.err{background:#FCE7DE;color:#A1431F}
+    a{color:#075E54;font-weight:600}
+  </style>
+</head>
+<body>
+  <h1>API key</h1>
+
+  <div class="card" id="status-card">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <div class="small" style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.14em">Current key</div>
+        <div id="key-display" style="font-family:'JetBrains Mono',monospace;font-size:13px;margin-top:4px">…</div>
+      </div>
+      <span id="status-pill" class="status err">checking…</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="small" style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Paste new key</div>
+    <div class="row">
+      <input type="password" id="key-input" class="txt" placeholder="wsn_live_..." />
+      <button class="btn btn-primary" onclick="saveKey()">Save</button>
+    </div>
+    <div class="small" style="margin-top:10px">
+      Generate at <a href="#" id="account-link" target="_blank">your Wasnap account</a> → <b>Sheets API Key</b> section.
+    </div>
+    <div class="small" id="save-msg" style="margin-top:6px"></div>
+  </div>
+
+  <div class="row" style="justify-content:flex-end">
+    <button class="btn btn-danger" id="revoke-btn" onclick="revokeKey()" style="display:none">Revoke</button>
+  </div>
+
+<script>
+  function refresh() {
+    google.script.run.withSuccessHandler(s => {
+      const pill = document.getElementById('status-pill');
+      const disp = document.getElementById('key-display');
+      const rev  = document.getElementById('revoke-btn');
+      document.getElementById('account-link').href = s.wasnap_base + '/sheets-addon';
+      if (s.has_key) {
+        pill.className = 'status ok'; pill.textContent = '✓ connected';
+        disp.textContent = 'wsn_live_••••••' + s.suffix;
+        rev.style.display = 'inline-flex';
+      } else {
+        pill.className = 'status err'; pill.textContent = '! no key';
+        disp.textContent = 'No key set';
+        rev.style.display = 'none';
+      }
+    }).apiKeyStatus();
+  }
+
+  function saveKey() {
+    const v = document.getElementById('key-input').value;
+    const msg = document.getElementById('save-msg');
+    msg.textContent = 'Saving…';
+    google.script.run.withSuccessHandler(() => {
+      msg.textContent = '✓ Saved.';
+      document.getElementById('key-input').value = '';
+      refresh();
+    }).withFailureHandler(e => {
+      msg.textContent = '✗ ' + (e.message || e);
+    }).setApiKey(v);
+  }
+
+  function revokeKey() {
+    if (!confirm('Revoke the saved key? You can paste it again later.')) return;
+    google.script.run.withSuccessHandler(refresh).clearApiKey();
+  }
+
+  refresh();
+</script>
+</body>
+</html>

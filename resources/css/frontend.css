@@ -1,0 +1,293 @@
+/* ============================================================
+   frontend.css — the prototype's <style> block, verbatim.
+   Loaded as its own Vite entry by <x-layouts.frontend>.
+   ============================================================ */
+
+html, body { background:#FFFFFF; }
+body { font-family:Inter,sans-serif; color:#0B1F1C; -webkit-font-smoothing:antialiased; }
+.serif { font-family:'Instrument Serif',serif; letter-spacing:-0.014em; }
+.mono  { font-family:'JetBrains Mono',monospace; }
+.hairline   { border:1px solid #E5DFD0; }
+.hairline-b { border-bottom:1px solid #E5DFD0; }
+.hairline-t { border-top:1px solid #E5DFD0; }
+.hairline-r { border-right:1px solid #E5DFD0; }
+.hairline-l { border-left:1px solid #E5DFD0; }
+.pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:500; }
+.chat-grid { background-color:#ECE5DD; background-image:radial-gradient(rgba(7,94,84,0.07) 1px,transparent 1px); background-size:14px 14px; }
+.dot-pattern { background-image:radial-gradient(circle at 1px 1px, rgba(7,94,84,0.15) 1px, transparent 0); background-size:14px 14px; }
+.grid-bg { background-image: linear-gradient(#E5DFD0 1px,transparent 1px), linear-gradient(90deg, #E5DFD0 1px, transparent 1px); background-size:56px 56px; }
+.pulse-dot { animation:pulseD 1.6s ease-in-out infinite; }
+@keyframes pulseD { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.35)} }
+.marquee { display:flex; gap:48px; animation:scroll 38s linear infinite; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.float-y { animation:floatY 6s ease-in-out infinite; }
+.float-y-2 { animation:floatY 7s ease-in-out infinite -2s; }
+.float-y-3 { animation:floatY 8s ease-in-out infinite -3s; }
+@keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.reveal { opacity:0; transform:translateY(28px); transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d,0ms); }
+.reveal.in { opacity:1; transform:translateY(0); }
+.gradient-deep { background:linear-gradient(135deg,#075E54 0%, #0B1F1C 100%); }
+.glow-green { box-shadow:0 0 0 1px rgba(37,211,102,0.4), 0 0 24px -4px rgba(37,211,102,0.5); }
+.badge-num { font-family:'Instrument Serif',serif; font-size:13px; line-height:1; padding:3px 10px 4px; border:1px solid #E5DFD0; border-radius:999px; color:#3A5A55; background:#FBFAF6; display:inline-block; }
+.feature-num { font-family:'Instrument Serif',serif; font-size:140px; line-height:0.85; color:#E5DFD0; letter-spacing:-0.04em; }
+.feature-num-sm { font-family:'Instrument Serif',serif; font-size:64px; line-height:0.85; color:#E5DFD0; letter-spacing:-0.04em; }
+.blur-bub { filter:blur(80px); }
+.tabular { font-variant-numeric:tabular-nums; }
+/* premium word-glow for big numbers */
+@keyframes glow {
+  0%,100% { text-shadow: 0 0 0 rgba(37,211,102,0); filter:brightness(1); }
+  50%     { text-shadow: 0 0 22px rgba(37,211,102,.55), 0 0 44px rgba(37,211,102,.35); filter:brightness(1.04); }
+}
+.glow-word { animation: glow 3.6s ease-in-out infinite; }
+.glow-word-2 { animation: glow 3.6s ease-in-out infinite -1.2s; }
+.glow-word-3 { animation: glow 3.6s ease-in-out infinite -2.4s; }
+/* shimmer underline */
+.shimmer { position:relative; display:inline-block; }
+.shimmer::after { content:""; position:absolute; left:0; right:0; bottom:6%; height:14%; background:linear-gradient(90deg, transparent, rgba(37,211,102,.45), transparent); background-size:200% 100%; animation: shimmer 3.2s linear infinite; }
+@keyframes shimmer { from { background-position:200% 0; } to { background-position:-200% 0; } }
+/* counter ticker rising digits */
+@keyframes digitFloat {
+  0%,100% { transform:translateY(0); opacity:1 }
+  50% { transform:translateY(-1px); opacity:.94 }
+}
+.digit-float { animation: digitFloat 2.4s ease-in-out infinite; }
+.ticker      { animation: digitFloat 2.4s ease-in-out infinite; }
+/* heartbeat pulse for live tag */
+@keyframes heartbeat {
+  0%,100% { transform:scale(1); }
+  25% { transform:scale(1.25); }
+  50% { transform:scale(1); }
+  75% { transform:scale(1.1); }
+}
+.heartbeat { animation: heartbeat 1.4s ease-in-out infinite; }
+/* live chart trace draw */
+@keyframes draw { to { stroke-dashoffset: 0; } }
+/* live spark */
+.spark-dot { animation: sparkD 1.8s ease-out infinite; }
+@keyframes sparkD { 0% { transform:scale(.6); opacity:.9 } 100% { transform:scale(3); opacity:0 } }
+details > summary { list-style:none; cursor:pointer; }
+details > summary::-webkit-details-marker { display:none; }
+.check-li { display:flex; gap:12px; align-items:flex-start; }
+.check-li::before { content:""; width:18px; height:18px; border-radius:6px; background:#25D366; color:#0B1F1C; flex-shrink:0; margin-top:2px; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 8l3 3 7-7' stroke='%230B1F1C' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:center; background-size:14px; }
+.ring-img { box-shadow: 0 30px 70px -30px rgba(7,94,84,0.4); }
+.scroll-x { scrollbar-width:none; }
+.scroll-x::-webkit-scrollbar { display:none; }
+.num-tick { transition: transform .4s ease, color .4s ease; }
+.stat-card:hover .num-tick { transform: translateY(-2px); color:#075E54; }
+/* slim divider with mono label */
+.section-rule { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
+.section-rule::before, .section-rule::after { content:""; flex:1; height:1px; background:#E5DFD0; }
+.section-rule::before { max-width:80px; }
+
+/* ====== TWO-DEVICE STAGE ====== */
+.glass { background: rgba(255,255,255,.7); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); }
+.lift { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+.lift:hover { transform: translateY(-4px); box-shadow: 0 22px 50px -25px rgba(7,94,84,.3); border-color:#075E54; }
+
+/* flying messages */
+.fly-msg { position:absolute; background:#E7FFDB; border-radius:14px 14px 14px 4px; padding:8px 12px; font-size:11.5px; color:#0B1F1C; box-shadow: 0 8px 30px -8px rgba(7,94,84,.4), 0 0 0 1px rgba(7,94,84,.08); transform-origin: center; opacity:0; z-index:30; pointer-events:none; white-space:nowrap; }
+.fly-1 { animation: fly1 6.5s ease-in-out infinite; }
+.fly-2 { animation: fly2 6.5s ease-in-out infinite; animation-delay:2.2s; }
+.fly-3 { animation: fly3 6.5s ease-in-out infinite; animation-delay:4.4s; }
+@keyframes fly1 {
+  0%   { left: 28%; top: 58%; opacity:0; transform: scale(.6) rotate(-6deg); }
+  10%  { left: 28%; top: 58%; opacity:1; transform: scale(1) rotate(-3deg); }
+  50%  { left: 50%; top: 2%;  opacity:1; transform: scale(1.05) rotate(2deg); }
+  82%  { left: 62%; top: 28%; opacity:1; transform: scale(.9) rotate(-1deg); }
+  92%  { left: 64%; top: 32%; opacity:0; transform: scale(.5) rotate(-3deg); }
+  100% { left: 64%; top: 32%; opacity:0; transform: scale(0) rotate(-3deg); }
+}
+@keyframes fly2 {
+  0%   { left: 28%; top: 58%; opacity:0; transform: scale(.6) rotate(4deg); }
+  10%  { left: 28%; top: 58%; opacity:1; transform: scale(1) rotate(2deg); }
+  50%  { left: 50%; top: -2%; opacity:1; transform: scale(1.05) rotate(-2deg); }
+  82%  { left: 62%; top: 28%; opacity:1; transform: scale(.9) rotate(1deg); }
+  92%  { left: 64%; top: 32%; opacity:0; transform: scale(.5) rotate(2deg); }
+  100% { left: 64%; top: 32%; opacity:0; transform: scale(0) rotate(2deg); }
+}
+@keyframes fly3 {
+  0%   { left: 28%; top: 58%; opacity:0; transform: scale(.6) rotate(-2deg); }
+  10%  { left: 28%; top: 58%; opacity:1; transform: scale(1) rotate(1deg); }
+  50%  { left: 50%; top: 4%;  opacity:1; transform: scale(1.05) rotate(3deg); }
+  82%  { left: 62%; top: 28%; opacity:1; transform: scale(.9) rotate(0deg); }
+  92%  { left: 64%; top: 32%; opacity:0; transform: scale(.5) rotate(2deg); }
+  100% { left: 64%; top: 32%; opacity:0; transform: scale(0) rotate(2deg); }
+}
+
+/* trail dots — follow the high arc */
+.trail-dot { position:absolute; width:8px; height:8px; border-radius:50%; background:#25D366; box-shadow:0 0 16px 4px rgba(37,211,102,.7); z-index:25; opacity:0; pointer-events:none; }
+.trail-dot.t1 { animation: trail1 6.5s linear infinite; }
+.trail-dot.t2 { animation: trail1 6.5s linear infinite; animation-delay:2.2s; }
+.trail-dot.t3 { animation: trail1 6.5s linear infinite; animation-delay:4.4s; }
+@keyframes trail1 {
+  0%   { left:28%; top:60%; opacity:0; }
+  10%  { left:30%; top:56%; opacity:.7; }
+  50%  { left:50%; top:4%;  opacity:1; }
+  90%  { left:70%; top:44%; opacity:.7; }
+  100% { left:72%; top:46%; opacity:0; }
+}
+
+/* arc line */
+.arc-line { stroke-dasharray: 800; stroke-dashoffset: 800; animation: drawArc 6.5s ease-in-out infinite; }
+@keyframes drawArc {
+  0%   { stroke-dashoffset: 800; opacity:0; }
+  15%  { stroke-dashoffset: 800; opacity:.6; }
+  55%  { stroke-dashoffset: 0;   opacity:.6; }
+  88%  { stroke-dashoffset: 0;   opacity:0; }
+  100% { stroke-dashoffset: 0;   opacity:0; }
+}
+
+/* incoming pop on receiver — bubbles persist, briefly highlight when fly-msg lands */
+.recv-pop { animation: recvPop 6.5s ease-in-out infinite; }
+.recv-pop-2 { animation: recvPop 6.5s ease-in-out infinite -2.2s; }
+.recv-pop-3 { animation: recvPop 6.5s ease-in-out infinite -4.4s; }
+@keyframes recvPop {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+  86%  { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+  90%  { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(37,211,102,.35); }
+  96%  { transform: scale(1); box-shadow: 0 0 0 12px rgba(37,211,102,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+}
+
+/* landing pulse — small green spark at receiver chat edge */
+.landing-pulse { position:absolute; left:62%; top:32%; width:12px; height:12px; border-radius:50%; background:#25D366; z-index:24; opacity:0; pointer-events:none; transform:translate(-50%,-50%); box-shadow: 0 0 10px 2px rgba(37,211,102,.5); }
+.landing-pulse.lp1 { animation: landingPulse 6.5s ease-out infinite; }
+.landing-pulse.lp2 { animation: landingPulse 6.5s ease-out infinite -2.2s; }
+.landing-pulse.lp3 { animation: landingPulse 6.5s ease-out infinite -4.4s; }
+@keyframes landingPulse {
+  0%, 84% { transform: translate(-50%,-50%) scale(0); opacity:0; }
+  88%     { transform: translate(-50%,-50%) scale(1); opacity:.85; }
+  94%     { transform: translate(-50%,-50%) scale(1.6); opacity:.4; }
+  100%    { transform: translate(-50%,-50%) scale(2); opacity:0; }
+}
+
+/* typing dots */
+@keyframes typingDot { 0%,100%{opacity:.3;transform:translateY(0)} 50%{opacity:1;transform:translateY(-2px)} }
+.typing-dot { animation: typingDot 1.4s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation-delay:.18s; }
+.typing-dot:nth-child(3) { animation-delay:.36s; }
+
+/* sound rings */
+@keyframes ring { 0%{transform:scale(.7);opacity:.7} 100%{transform:scale(2);opacity:0} }
+.ring-out { position:absolute; inset:0; border-radius:9999px; border:2px solid #25D366; animation: ring 2s ease-out infinite; }
+.ring-out.r2 { animation-delay:.7s; }
+.ring-out.r3 { animation-delay:1.4s; }
+
+/* live activity stream */
+.stream-dot { position:absolute; top:50%; left:0; width:6px; height:6px; border-radius:50%; background:#25D366; box-shadow:0 0 10px 2px rgba(37,211,102,.55); transform:translateY(-50%); opacity:0; }
+.sd1 { animation: streamFlow 5s linear infinite; }
+.sd2 { animation: streamFlow 5s linear infinite -.8s; }
+.sd3 { animation: streamFlow 5s linear infinite -1.6s; }
+.sd4 { animation: streamFlow 5s linear infinite -2.4s; }
+.sd5 { animation: streamFlow 5s linear infinite -3.2s; }
+.sd6 { animation: streamFlow 5s linear infinite -4s; }
+@keyframes streamFlow {
+  0%   { left:-2%; opacity:0; transform:translateY(-50%) scale(.6); }
+  8%   { opacity:1; transform:translateY(-50%) scale(1); }
+  92%  { opacity:1; transform:translateY(-50%) scale(1); }
+  100% { left:102%; opacity:0; transform:translateY(-50%) scale(.6); }
+}
+
+/* mini emoji message bubbles flying across */
+.stream-bub { position:absolute; top:50%; left:0; font-size:14px; line-height:1; transform:translateY(-50%); opacity:0; padding:2px 6px; border-radius:8px; background:#E7FFDB; border:1px solid rgba(7,94,84,.15); box-shadow:0 4px 12px -4px rgba(7,94,84,.25); }
+.sb1 { animation: bubFlow 7.5s ease-in-out infinite; }
+.sb2 { animation: bubFlow 7.5s ease-in-out infinite -2.5s; font-family:'JetBrains Mono',monospace; font-size:10px; color:#075E54; }
+.sb3 { animation: bubFlow 7.5s ease-in-out infinite -5s; }
+@keyframes bubFlow {
+  0%   { left:-3%; opacity:0; transform:translateY(-50%) scale(.6) rotate(-4deg); }
+  10%  { opacity:1; transform:translateY(-50%) scale(1) rotate(0); }
+  90%  { opacity:1; transform:translateY(-50%) scale(1) rotate(0); }
+  100% { left:103%; opacity:0; transform:translateY(-50%) scale(.6) rotate(4deg); }
+}
+
+/* feature bento cards (features page) */
+.feat-card { transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease; position:relative; }
+.feat-card:hover { transform: translateY(-6px); border-color:#075E54; box-shadow: 0 40px 80px -40px rgba(7,94,84,0.4); }
+.feat-card:hover .feat-arrow { transform: translateX(6px); color:#075E54; }
+.feat-arrow { transition: transform .35s ease, color .35s ease; }
+.feat-card .feat-mock { transition: transform .5s cubic-bezier(.2,.7,.2,1); }
+.feat-card:hover .feat-mock { transform: translateY(-4px) scale(1.02); }
+
+/* brand tile + hover */
+.brand-tile { transition: transform .25s ease, box-shadow .25s ease; box-shadow: 0 4px 12px -6px rgba(7,94,84,0.2); }
+.feat-card:hover .brand-tile { transform: translateY(-2px); }
+
+/* pulse ring (around active wizard step) */
+@keyframes pulseRing { 0% { transform: scale(.6); opacity:.8; } 100% { transform: scale(2.2); opacity:0; } }
+.pulse-ring { animation: pulseRing 2s ease-out infinite; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #25D366; }
+
+/* blink-green dot */
+@keyframes blinkGreen {
+  0%,100% { background:#25D366; box-shadow:0 0 0 0 rgba(37,211,102,.7); }
+  50%     { background:#1ec05a; box-shadow:0 0 0 6px rgba(37,211,102,0); }
+}
+.blink-green { animation: blinkGreen 1.8s ease-in-out infinite; }
+
+/* bar grow */
+@keyframes barGrow { from { width:0; } }
+.bar-grow { animation: barGrow 2.5s ease-out; }
+
+/* flowing dashed line (flow builder canvas) */
+@keyframes flow { 0% { stroke-dashoffset: 60; } 100% { stroke-dashoffset: 0; } }
+.flow-line { stroke-dasharray: 4 4; animation: flow 1.5s linear infinite; }
+
+/* text shimmer */
+.text-shimmer {
+  background: linear-gradient(90deg, #075E54 0%, #25D366 50%, #075E54 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Mobile-responsiveness backstop (public marketing site).
+ * Bare element selectors so any Tailwind utility still wins — desktop
+ * is untouched. Stops inner content from forcing a horizontal scrollbar.
+ * ────────────────────────────────────────────────────────────────── */
+/* `svg` intentionally excluded — inline SVGs are sized icons or functional
+   canvases; clamping them to 100% breaks diagrams. Only real media is clamped. */
+img, video, canvas, iframe { max-width: 100%; }
+/* Root-level horizontal-overflow net. overflow-x:clip on <html> directly
+   (not just <body>) so a decorative absolutely-positioned element that
+   escapes its section on mobile can never widen the page / cause the
+   left-clip + right dead-strip. Vertical scroll is unaffected. */
+html { overflow-x: clip; }
+
+/* ---- Homepage FAQ infinite slider (x-frontend.faq-slider) ---------------- */
+.wd-faq-marquee { overflow: hidden; }
+.wd-faq-track {
+    display: flex;
+    gap: 1rem;
+    width: max-content;
+    animation: wd-faq-scroll 46s linear infinite;
+}
+.wd-faq-track.rev { animation-name: wd-faq-scroll-rev; animation-duration: 54s; }
+.wd-faq-marquee:hover .wd-faq-track { animation-play-state: paused; }
+@keyframes wd-faq-scroll      { from { transform: translateX(0); }      to { transform: translateX(-50%); } }
+@keyframes wd-faq-scroll-rev  { from { transform: translateX(-50%); }   to { transform: translateX(0); } }
+.wd-faq-card {
+    width: 340px;
+    flex-shrink: 0;
+    border: 1px solid rgba(11, 31, 28, 0.10);
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1.1rem 1.2rem;
+    box-shadow: 0 1px 2px rgba(11, 31, 28, 0.04);
+}
+.wd-faq-answer {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+/* Fade the edges so cards slide in/out softly. */
+.wd-faq-mask {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+    .wd-faq-track { animation: none; }
+}
+

@@ -1,0 +1,209 @@
+<?php
+/**
+ * Plugin Name: __BRAND__ for WooCommerce
+ * Description: Forwards the WooCommerce events that the REST API can't — abandoned checkouts (with phone), subscription dunning, and custom statuses — to your __BRAND__ WhatsApp CRM.
+ * Version: 1.0.0
+ * Author: __BRAND__
+ * Requires Plugins: woocommerce
+ *
+ * After activating, open Settings → __BRAND__ WhatsApp and confirm the Webhook URL
+ * and Secret (pre-filled for your store). That's it — abandoned-cart recovery,
+ * subscription dunning, and the rest light up automatically.
+ */
+
+if (!defined('ABSPATH')) exit;
+
+class WC_WhatsApp_Bridge {
+    const OPT = 'wcwa_bridge_options';
+    const TABLE = 'wcwa_pending_carts';
+
+    static function boot() {
+        register_activation_hook(__FILE__, [__CLASS__, 'activate']);
+        add_action('admin_menu', [__CLASS__, 'menu']);
+        add_action('admin_init', [__CLASS__, 'settings']);
+
+        // Abandoned-cart capture (the moat: phone before an order exists).
+        add_action('wp_footer', [__CLASS__, 'capture_script']);
+        add_action('wp_ajax_wcwa_capture', [__CLASS__, 'ajax_capture']);
+        add_action('wp_ajax_nopriv_wcwa_capture', [__CLASS__, 'ajax_capture']);
+        add_action('woocommerce_checkout_order_processed', [__CLASS__, 'cart_converted'], 10, 1);
+        add_action('wcwa_sweep_carts', [__CLASS__, 'sweep_carts']);
+        if (!wp_next_scheduled('wcwa_sweep_carts')) {
+            wp_schedule_event(time() + 300, 'wcwa_5min', 'wcwa_sweep_carts');
+        }
+        add_filter('cron_schedules', function ($s) {
+            $s['wcwa_5min'] = ['interval' => 300, 'display' => 'Every 5 minutes'];
+            return $s;
+        });
+
+        // Subscription dunning.
+        add_action('woocommerce_subscription_payment_failed', [__CLASS__, 'sub_failed'], 10, 1);
+    }
+
+    static function opts() {
+        return wp_parse_args(get_option(self::OPT, []), [
+            'url'        => '__WEBHOOK_URL__',
+            'secret'     => '__SECRET__',
+            'delay_min'  => __DELAY__,
+            'enabled'    => 1,
+        ]);
+    }
+
+    static function activate() {
+        global $wpdb;
+        $t = $wpdb->prefix . self::TABLE;
+        $charset = $wpdb->get_charset_collate();
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta("CREATE TABLE $t (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            cart_hash VARCHAR(64) NOT NULL,
+            phone VARCHAR(32) NULL,
+            email VARCHAR(191) NULL,
+            total VARCHAR(32) NULL,
+            status VARCHAR(16) NOT NULL DEFAULT 'pending',
+            updated_at DATETIME NOT NULL,
+            PRIMARY KEY (id),
+            KEY cart_hash (cart_hash),
+            KEY status (status)
+        ) $charset;");
+        if (!get_option(self::OPT)) add_option(self::OPT, self::opts());
+    }
+
+    // ---- HMAC-signed POST, identical scheme to WooCommerce webhooks ----
+    static function send($topic, $payload) {
+        $o = self::opts();
+        if (empty($o['enabled']) || empty($o['url']) || empty($o['secret'])) return;
+        $body = wp_json_encode($payload);
+        $sig  = base64_encode(hash_hmac('sha256', $body, $o['secret'], true));
+        wp_remote_post($o['url'], [
+            'timeout'  => 8,
+            'blocking' => false,
+            'headers'  => [
+                'Content-Type'            => 'application/json',
+                'X-WC-Webhook-Topic'      => $topic,
+                'X-WC-Webhook-Signature'  => $sig,
+                'X-WC-Webhook-Source'     => home_url(),
+            ],
+            'body' => $body,
+        ]);
+    }
+
+    // ---- Abandoned cart ----
+    static function capture_script() {
+        if (!is_checkout()) return;
+        $ajax = admin_url('admin-ajax.php');
+        echo "<script>(function(){
+            function send(){
+                var p=(document.getElementById('billing_phone')||{}).value||'';
+                var e=(document.getElementById('billing_email')||{}).value||'';
+                if(!p && !e) return;
+                var f=new FormData(); f.append('action','wcwa_capture'); f.append('phone',p); f.append('email',e);
+                navigator.sendBeacon ? navigator.sendBeacon('$ajax', f)
+                    : fetch('$ajax',{method:'POST',body:f,keepalive:true});
+            }
+            ['billing_phone','billing_email'].forEach(function(id){
+                var el=document.getElementById(id); if(el) el.addEventListener('change', send);
+            });
+        })();</script>";
+    }
+
+    static function ajax_capture() {
+        global $wpdb;
+        $phone = preg_replace('/\D+/', '', isset($_POST['phone']) ? sanitize_text_field($_POST['phone']) : '');
+        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+        if ($phone === '' && $email === '') wp_die('', '', ['response' => 204]);
+        $hash  = md5(($phone ?: $email) . '|' . (WC()->session ? WC()->session->get_customer_id() : ''));
+        $total = (WC() && WC()->cart) ? WC()->cart->get_total('edit') : '';
+        $t = $wpdb->prefix . self::TABLE;
+        $exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM $t WHERE cart_hash=%s AND status='pending'", $hash));
+        $now = current_time('mysql');
+        if ($exists) {
+            $wpdb->update($t, ['phone' => $phone, 'email' => $email, 'total' => $total, 'updated_at' => $now], ['id' => $exists]);
+        } else {
+            $wpdb->insert($t, ['cart_hash' => $hash, 'phone' => $phone, 'email' => $email, 'total' => $total, 'status' => 'pending', 'updated_at' => $now]);
+        }
+        wp_die('', '', ['response' => 204]);
+    }
+
+    static function cart_converted($order_id) {
+        global $wpdb;
+        $order = wc_get_order($order_id);
+        if (!$order) return;
+        $phone = preg_replace('/\D+/', '', $order->get_billing_phone());
+        $t = $wpdb->prefix . self::TABLE;
+        if ($phone) $wpdb->query($wpdb->prepare("UPDATE $t SET status='converted' WHERE phone=%s AND status='pending'", $phone));
+    }
+
+    static function sweep_carts() {
+        global $wpdb;
+        $o = self::opts();
+        $t = $wpdb->prefix . self::TABLE;
+        $cutoff = gmdate('Y-m-d H:i:s', time() - max(5, (int) $o['delay_min']) * 60);
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM $t WHERE status='pending' AND updated_at < %s LIMIT 50", $cutoff));
+        foreach ($rows as $r) {
+            self::send('checkout.created', [
+                'id'      => $r->id,
+                'token'   => $r->cart_hash,
+                'total'   => $r->total,
+                'email'   => $r->email,
+                'billing' => ['phone' => $r->phone, 'email' => $r->email],
+            ]);
+            $wpdb->update($t, ['status' => 'notified'], ['id' => $r->id]);
+        }
+    }
+
+    // ---- Subscription dunning ----
+    static function sub_failed($subscription) {
+        if (!is_object($subscription)) return;
+        $last = method_exists($subscription, 'get_last_order') ? $subscription->get_last_order('all') : null;
+        $order = $last ?: $subscription;
+        self::send('subscription.payment_failed', [
+            'id'         => $order->get_id(),
+            'number'     => $order->get_order_number(),
+            'order_key'  => method_exists($order, 'get_order_key') ? $order->get_order_key() : '',
+            'total'      => $order->get_total(),
+            'currency'   => $order->get_currency(),
+            'status'     => 'failed',
+            'billing'    => [
+                'first_name' => $order->get_billing_first_name(),
+                'last_name'  => $order->get_billing_last_name(),
+                'phone'      => $order->get_billing_phone(),
+                'email'      => $order->get_billing_email(),
+            ],
+        ]);
+    }
+
+    // ---- Settings UI ----
+    static function menu() {
+        add_options_page('__BRAND__ WhatsApp', '__BRAND__ WhatsApp', 'manage_options', 'wcwa-bridge', [__CLASS__, 'page']);
+    }
+    static function settings() {
+        register_setting('wcwa_bridge', self::OPT, [__CLASS__, 'sanitize']);
+    }
+    static function sanitize($in) {
+        return [
+            'url'       => esc_url_raw($in['url'] ?? ''),
+            'secret'    => sanitize_text_field($in['secret'] ?? ''),
+            'delay_min' => max(5, (int) ($in['delay_min'] ?? 30)),
+            'enabled'   => empty($in['enabled']) ? 0 : 1,
+        ];
+    }
+    static function page() {
+        $o = self::opts();
+        echo '<div class="wrap"><h1>__BRAND__ for WooCommerce</h1>';
+        echo '<p>These events power abandoned-cart recovery, subscription dunning and more inside your __BRAND__ WhatsApp CRM.</p>';
+        echo '<form method="post" action="options.php">';
+        settings_fields('wcwa_bridge');
+        $n = self::OPT;
+        echo '<table class="form-table">';
+        echo '<tr><th>Webhook URL</th><td><input type="url" name="'.$n.'[url]" value="'.esc_attr($o['url']).'" class="regular-text" style="width:30em"></td></tr>';
+        echo '<tr><th>Secret</th><td><input type="text" name="'.$n.'[secret]" value="'.esc_attr($o['secret']).'" class="regular-text" style="width:30em"></td></tr>';
+        echo '<tr><th>Abandoned after (minutes)</th><td><input type="number" min="5" name="'.$n.'[delay_min]" value="'.esc_attr($o['delay_min']).'"></td></tr>';
+        echo '<tr><th>Enabled</th><td><label><input type="checkbox" name="'.$n.'[enabled]" value="1" '.checked(1, $o['enabled'], false).'> Send events to __BRAND__</label></td></tr>';
+        echo '</table>';
+        submit_button();
+        echo '</form></div>';
+    }
+}
+
+WC_WhatsApp_Bridge::boot();

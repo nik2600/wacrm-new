@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WaDesk Companion</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <style>
+        :root {
+            --p-paper-0: #FBFAF6;
+            --p-paper-50: #F5F3EC;
+            --p-paper-200: #E5DFD0;
+            --p-ink-500: #6B807C;
+            --p-ink-900: #0B1F1C;
+            --p-deep: #075E54;
+            --p-teal: #128C7E;
+            --p-mint: #DCF8C6;
+            --p-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+            --p-serif: 'Fraunces', Georgia, serif;
+            --p-mono: 'JetBrains Mono', ui-monospace, monospace;
+        }
+        * { box-sizing: border-box; }
+        body {
+            width: 300px;
+            margin: 0;
+            padding: 24px 22px;
+            text-align: center;
+            font-family: var(--p-sans);
+            background: var(--p-paper-50);
+            color: var(--p-ink-900);
+        }
+        .p-logo-box {
+            width: 52px; height: 52px;
+            margin: 0 auto 14px auto;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .p-logo-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        h3 {
+            font-family: var(--p-serif);
+            font-weight: 500;
+            font-size: 22px;
+            margin: 0 0 4px 0;
+            letter-spacing: -0.01em;
+            color: var(--p-ink-900);
+        }
+        .p-sub {
+            font-family: var(--p-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--p-ink-500);
+            margin: 0 0 18px 0;
+        }
+        .p-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--p-mint);
+            border: 1px solid rgba(7,94,84,0.18);
+            color: var(--p-deep);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 9999px;
+            margin-bottom: 18px;
+        }
+        .p-dot { width: 7px; height: 7px; border-radius: 50%; background: #25D366; }
+        .p-btn {
+            width: 100%;
+            padding: 11px 16px;
+            border: none;
+            border-radius: 9999px;
+            background: var(--p-deep);
+            color: var(--p-paper-0);
+            font-family: var(--p-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .p-btn:hover { background: var(--p-teal); }
+        .p-btn:disabled { opacity: .45; pointer-events: none; }
+        .p-hint { margin-top: 14px; font-size: 11px; color: var(--p-ink-500); line-height: 1.5; }
+        .p-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 14px 0 4px; font-size: 12.5px; color: #243B36; font-weight: 600; }
+        .p-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }
+        .p-switch input { opacity: 0; width: 0; height: 0; }
+        .p-switch-slider { position: absolute; cursor: pointer; inset: 0; background: #C9D6D2; border-radius: 999px; transition: background .2s; }
+        .p-switch-slider::before { content: ""; position: absolute; height: 16px; width: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+        .p-switch input:checked + .p-switch-slider { background: var(--p-deep, #075E54); }
+        .p-switch input:checked + .p-switch-slider::before { transform: translateX(16px); }
+    </style>
+</head>
+<body>
+    <div class="p-logo-box">
+        <img src="assets/images/logo.png" alt="WaDesk">
+    </div>
+    <h3>WaDesk Companion</h3>
+    <p class="p-sub">Bulk sender &middot; scraper</p>
+
+    <div class="p-status">
+        <span class="p-dot"></span>
+        Active on WhatsApp Web
+    </div>
+
+    <div class="p-toggle-row">
+        <span>Show panel on WhatsApp Web</span>
+        <label class="p-switch">
+            <input type="checkbox" id="panel-toggle" checked>
+            <span class="p-switch-slider"></span>
+        </label>
+    </div>
+
+    <button id="open-sidebar" class="p-btn">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="12" height="11" rx="2"/><path d="M10 2.5v11"/></svg>
+        Open panel
+    </button>
+
+    <p class="p-hint">Opens the WaDesk side panel inside WhatsApp Web. Refresh the tab if it doesn't appear.</p>
+
+    <script src="popup.js"></script>
+</body>
+</html>
